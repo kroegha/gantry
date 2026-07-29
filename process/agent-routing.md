@@ -1,6 +1,27 @@
-# Agent Routing — binding to the local sub-agent library
+# Agent Routing — four bundled contract agents, everything else by discovery
 
-Gantry bundles no agents and duplicates none. It binds at run time to whatever sub-agent library the machine has, by discovery. If the machine has none, Gantry does the work itself — routing is an optimisation, never a dependency.
+There are two kinds of agent in this lifecycle, and they are routed differently.
+
+## Contract agents (bundled — use these, not a substitute)
+
+Four roles exist because the process *depends on a specific behaviour*, not just on someone competent doing the work. Gantry ships them in `agents/` and they take precedence over any same-role agent found in the local library:
+
+| Role | Agent | The contract |
+|---|---|---|
+| UAT execution (S5) | `uat-test-agent` | **Read-only on the project** — its tools are restricted so it cannot edit, write, or commit. It reports; the orchestrator fixes |
+| Requirements audit (S5) | `requirements-auditor` | Line-by-line PRD → implementation traceability, every claim cited `file:line` |
+| Risky-phase exit / readiness | `reality-checker` | **Defaults to NEEDS WORK**; refuses to pass on green tests alone |
+| Per-phase diff review | `code-reviewer` | Rates every finding by severity, so the gate rule "fix ≥ medium" has something to act on |
+
+Substituting a general-purpose equivalent quietly breaks these. A discovered code reviewer that emits no severities makes the phase gate meaningless; a discovered tester that fixes what it finds destroys the read-only boundary the UAT round depends on. **Do not substitute them, and do not "improve" on them by picking a more specialised-sounding agent from the local library.**
+
+The owner may override any of them explicitly. That is their call, and it gets logged in DECISIONS.md like any other.
+
+## Capability agents (discovered — never hardcode a roster)
+
+Everything else — backend, frontend, infrastructure, security design, architecture, data — is routed by discovery against whatever library the machine has. These roles are interchangeable, the local library is usually better tuned than anything Gantry could freeze, and hardcoding a roster would rot.
+
+If the machine has no library, Gantry does the work itself. Discovery is an optimisation, never a dependency.
 
 ## Discovery (do this, never hardcode)
 
@@ -16,6 +37,8 @@ Gantry never writes to `~/.claude/agents/`, never proposes edits to it, and neve
 
 Roles, not names. Resolve each to a real `name:` from the live roster at S3, or to "unaided" if the library has no match.
 
+The four contract agents above are **not** in this table — they are already resolved. This table covers the capability roles only.
+
 | Role in the run | Capability to match on |
 |---|---|
 | Run coordination | Multi-agent orchestration, workflow sequencing |
@@ -27,18 +50,14 @@ Roles, not names. Resolve each to a real `name:` from the live roster at S3, or 
 | Infra, CI/CD, deploys, backups | DevOps, containerisation, pipelines |
 | Test strategy, E2E suites | QA strategy, end-to-end automation; API contract testing |
 | Security design + review | Threat modelling, secure code review, OWASP |
-| Per-phase code review | Code review with severity ratings |
 | Commit/branch discipline | Git workflow, conventional commits |
-| Honesty checks at risky-phase exits | Evidence-demanding verification; defaults to "not ready" |
-| Final spec-vs-implementation audit | Requirements traceability auditing |
 | UI fidelity vs design system | Visual/design review |
 
-## The UAT Test Agent (special case)
+## Provisioning the UAT Test Agent
 
-- Separate from all dev agents; **read-only on the project** — tests and reports only. It never edits code, config, data, or docs, and never commits.
-- The owner provisions access before S5 (pre-flight item): an authenticated browser session for the deployed environment, app test accounts, anything else declared in the UAT doc.
-- Its output is the UAT report (defects with reproduction steps + severity). The orchestrator turns defects into failing tests and fixes through the normal loop; the Test Agent re-verifies.
-- No agent library? The role still exists — run UAT as a distinct read-only pass with a fresh context, and hold the same rule: the thing that tests does not fix.
+The agent ships with Gantry, but its *access* does not. Before S5 the owner provides, as a pre-flight item: an authenticated browser session for the deployed environment, app test accounts, and anything else the UAT document declares. Without them the agent will correctly report scenarios as **untested** rather than passing them.
+
+Its output is the UAT report (defects with reproduction steps + severity). The orchestrator turns defects into failing tests and fixes them through the normal TDD loop; the Test Agent re-verifies in the next round and looks again — a fix is a change, and changes break things.
 
 ## Model economics for the run itself
 

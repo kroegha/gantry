@@ -180,9 +180,31 @@ Extend for your stack. `claude --dangerously-skip-permissions` also works but re
 
 **2. A git host CLI**, authenticated, if you want S0 to create the remote for you. Optional — S0 works locally without it and logs it as a pre-flight item.
 
-**3. A sub-agent library** in `~/.claude/agents/`, if you have one. Gantry discovers and routes to it, never modifies it, and proceeds unaided if it is absent.
+**3. A sub-agent library** in `~/.claude/agents/`, if you have one — for the *capability* roles (backend, frontend, infrastructure, security design). Gantry discovers and routes to it, never modifies it, and proceeds unaided if it is absent. The four **audit** roles ship with Gantry and are used in preference to anything discovered — see below.
 
 **4. An environment profile** for your deployment target. Copy `process/environments/_template.md` and fill it in once per estate you reuse. Without one, deployment details become pre-flight questions rather than guesses.
+
+**5. A language server for your stack** — Gantry will tell you which one once the stack is chosen at G2a, and put it on the pre-flight list. You don't need to guess up front. When it asks:
+
+```
+/plugin marketplace add Piebald-AI/claude-code-lsps
+/plugin install <language>-language-server@claude-code-lsps
+```
+
+The project's generated rules require using a language server over text search for symbol resolution and diagnostics — without one installed, that rule has nothing behind it.
+
+### The four bundled audit agents
+
+Gantry ships four agents and uses them in preference to same-role agents in your own library, because the process depends on their specific behaviour rather than on general competence:
+
+| Agent | Why it's bundled |
+|---|---|
+| `uat-test-agent` | **Read-only, enforced by its tool list** — it physically cannot edit, write, or commit. An agent that can fix what it finds stops looking as hard |
+| `requirements-auditor` | Traces every PRD requirement to `file:line` and reports Implemented / Partial / Stubbed / Missing / Unrequested. A generic reviewer writes a summary instead |
+| `reality-checker` | Defaults to **NEEDS WORK** and refuses to pass on green tests alone |
+| `code-reviewer` | Rates every finding by severity, which is what makes the phase gate's "fix ≥ medium" rule mean anything |
+
+Everything else — backend, frontend, infrastructure, security design, architecture — is routed to your own library by discovery, or done unaided if you have none. Gantry vendors nothing from `~/.claude/`.
 
 ### Word document output (optional)
 
@@ -209,6 +231,7 @@ Skipping it is fine — **without it everything still works and PRDs stop at mar
 | `commands/` | The eight `/gantry:*` commands |
 | `process/` | The manual: lifecycle, PRD intake, no-interruption contract, agent routing, stack evaluation, quality gates, phase library, deliverables, memory, environment profile template |
 | `kernel/` | Templates instantiated into each project (CLAUDE.md, PLANNING, BUILD-PLAN, PRP, docs-templates/) |
+| `agents/` | The four bundled audit agents (read-only UAT tester, requirements auditor, reality checker, code reviewer) |
 | `skills/` | Bundled `prd-create` and `prd-update`, plus the shared docx generator |
 | `memory/` | Cross-project memory (gotchas, patterns, calibration) — written only at harvest |
 | `examples/marketstall.md` | A worked example end-to-end, plus the acid-test checklist |

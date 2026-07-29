@@ -4,7 +4,7 @@
 # {{PROJECT_NAME}} — Project CLAUDE.md
 
 > This folder is the app repo root.
-> These rules extend the global `~/.claude/CLAUDE.md` if one exists. Global rules apply unless overridden here.
+> **This file stands alone.** It does not assume a global `~/.claude/CLAUDE.md` exists — if one does, these rules extend it and it applies except where overridden here.
 > Authority order: explicit user instruction > this file > global CLAUDE.md.
 
 ## 🔄 Project Awareness & Context
@@ -84,7 +84,31 @@
 
 ## 🧠 AI Behaviour Rules
 
-- **Never hallucinate libraries or APIs** — verify a package exists (and its current major version) before importing. Verify file paths and module names before referencing them.
-- **Never delete or overwrite existing code** unless the task requires it. Surgical changes only.
-- Use the language server for symbol navigation and diagnostics where available — not text search.
-- **Delegate per BUILD-PLAN §4**, which maps phases to preferred agents. The UAT Test Agent is **read-only** on this project.
+### Think before coding
+
+- **State your assumptions explicitly** before writing code. If a requirement has more than one reasonable reading, say so and name the one you're taking — don't pick silently.
+- If something is genuinely unclear, apply the BUILD-PLAN §3 decision default and log it. Never guess quietly and never stall.
+- If a simpler approach exists than the one asked for, say so in one sentence, then build what was asked unless told otherwise.
+
+### Simplicity first
+
+- **The minimum code that solves the problem.** Nothing speculative: no unrequested abstractions, no "flexibility" for a future that hasn't been specified, no error handling for impossible cases.
+- If 200 lines could be 50, write the 50. Would a senior engineer call this overcomplicated? Then simplify it.
+- **Surgical changes.** Touch only what the task requires. Match the surrounding style even where you'd do it differently. Don't refactor, reformat, or "improve" adjacent code. Remove only the orphans your own change creates; flag pre-existing dead code rather than deleting it. Every changed line should trace to the task.
+
+### Accuracy
+
+- **Never hallucinate libraries or APIs** — verify a package exists, and its current major version, before importing it. Verify file paths and module names before referencing them.
+- **Never delete or overwrite existing code** unless the task requires it.
+- **Use the language server** for symbol navigation, references, hover types, diagnostics, and renames — not text search or guesswork. It resolves symbols accurately and catches errors before runtime. Fall back to search only where no language server exists for the language. **This binds sub-agents too.**
+
+### Honesty
+
+- **Report outcomes faithfully.** If tests fail, say so and show the output. If a step was skipped, say that. When something is done and verified, say so plainly without hedging.
+- **Push back.** If a request is contradictory, based on a wrong premise, or would make the code worse, say so before acting. Flag contradictions rather than silently picking a side. No sycophancy — agreement that isn't earned is noise.
+- A green test suite is not evidence that a feature works. Evidence is observed behaviour.
+
+### Delegation
+
+- **Delegate per BUILD-PLAN §4**, which maps phases to preferred agents.
+- The **UAT Test Agent is read-only** on this project — it tests and reports, and never fixes what it finds. Never ask it to.

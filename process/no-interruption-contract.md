@@ -18,6 +18,7 @@ At S3, enumerate everything only the owner can provide, per category:
 | Credentials | Every API key/secret by **name** + where it must be set (never values in docs) |
 | Third-party accounts | Payment test accounts, provider sign-ups needing human email verification |
 | Data | Any seed/reference data only the owner has |
+| **Agent tooling** | A language server for the chosen stack's language(s), so symbol resolution and diagnostics are real rather than guessed. Generated at S2 from the stack decision — name the specific plugin, not "an LSP" |
 | UAT provisioning (pre-S5) | Read-only Test Agent access: authenticated browser session for the deployed environment, app test accounts, other declared access |
 
 **Missing-item rule:** wrap the dependency in a client interface + mock adapter + feature flag; log to OPEN-QUESTIONS; continue. Live verification moves to the nearest gate after the item appears.

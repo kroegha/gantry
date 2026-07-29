@@ -20,13 +20,13 @@ Every phase inherits the project's gate commands (from CLAUDE.md — typecheck, 
 
 | Audit | When | Who | Standard |
 |---|---|---|---|
-| Code review | every phase diff | code-review agent | fix severity ≥ medium before merge |
-| Security review | auth/payments/hardening phases | security agent | OWASP top 10 + project threat model |
-| Reality check | exits of risky phases (streaming, money, release) | reality-check agent | default NEEDS WORK; evidence required (live behaviour, not green tests alone) |
-| **UAT** | S5, repeated per round | **read-only Test Agent** | scenarios from PRD user stories + exploratory; defects → orchestrator fix loop → re-verify |
-| Requirements audit | S5 | requirements-audit agent | line-by-line PRD FR/scope vs implementation, written report |
+| Code review | every phase diff | `code-reviewer` (bundled) | fix severity ≥ medium before merge |
+| Security review | auth/payments/hardening phases | discovered security agent | OWASP top 10 + project threat model |
+| Reality check | exits of risky phases (streaming, money, release) | `reality-checker` (bundled) | default NEEDS WORK; evidence required (live behaviour, not green tests alone) |
+| **UAT** | S5, repeated per round | `uat-test-agent` (bundled, **read-only**) | scenarios from PRD user stories + exploratory; defects → orchestrator fix loop → re-verify |
+| Requirements audit | S5 | `requirements-auditor` (bundled) | line-by-line PRD FR/scope vs implementation, cited `file:line` |
 
-Agent names are discovered, never hardcoded — see `process/agent-routing.md`.
+Four of these five ship with Gantry because the audit depends on a specific behaviour, not just on competence — see `process/agent-routing.md` §Contract agents. The security reviewer is a capability role and is discovered from the local library.
 
 ## Gate discipline
 

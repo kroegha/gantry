@@ -39,6 +39,7 @@ Bring a PRD or just an idea; `/gantry:*` takes it to production — PRD intake �
 commands/   thin stage entry points  ─reads→  process/   the authoritative manual
                                      ─reads→  memory/    cross-project knowledge
                                      ─invokes→ skills/   prd-create, prd-update, docx generator
+                                     ─delegates→ agents/ the four contract agents
                                      ─instantiates→ kernel/  templates → target project
 ```
 
@@ -46,6 +47,7 @@ commands/   thin stage entry points  ─reads→  process/   the authoritative m
 2. **`process/*.md`** — the manual and real specification. `lifecycle.md` is the spine; the rest are loaded by name: `prd-intake.md`, `no-interruption-contract.md`, `quality-gates.md`, `agent-routing.md`, `stack-evaluation.md`, `phase-library.md`, `deliverables.md`, `memory.md`, and `environments/_template.md`.
 3. **`kernel/`** — templates instantiated into each *target* project at S0: six kernel docs, `BUILD-PLAN.template.md`, `PRPs/prp_base.md`, and `docs-templates/` (architecture, deployment, env-vars, maintenance, release-notes, security, uat). Not used by this repo itself.
 4. **`skills/`** — bundled `prd-create` and `prd-update` (each `SKILL.md` + `references/`), plus `_shared/generate-prd.js` and `_shared/style-constants.js`. Bundled rather than referenced so a fresh install has no external skill dependency.
+4a. **`agents/`** — the four **contract agents**: `uat-test-agent`, `requirements-auditor`, `reality-checker`, `code-reviewer`. Bundled because the process depends on their *specific behaviour*, not merely on competence — see `process/agent-routing.md`. Everything else is discovered from the local library. `uat-test-agent`'s read-only boundary is enforced by its `tools:` frontmatter, not just asserted in prose; **do not add write tools to it.**
 5. **`memory/`** — Tier-2 memory: `gotchas/` (`jurisdiction`, `ai-apis`, `nextjs`, `supabase-selfhosted`), `patterns/` (`money-integrity`, `external-integrations`), `calibration.md`, indexed in `MEMORY.md`. Written **only at harvest (S6)** — that single-writer rule is what lets concurrent project runs coexist.
 
 ## Working on the plugin
@@ -78,6 +80,8 @@ Commits use Conventional Commits.
 - **Stages flow into one another; gates resume immediately.** A command must never end by telling the user to run the next one and then stopping, and an approval must never be followed by waiting. The user reviews, answers, and approves — they do not drive the machine command by command (`process/lifecycle.md` §Continuous execution). Every command file ends with an explicit "continue into X" instruction; if you add a stage, add that handoff too.
 - **Templates carry `<!-- gen: -->` notes and `{{SLOT}}` placeholders.** The `gen:` comments tell the generating agent *when* a section is created/updated and what to source it from; `deliverables.md` relies on them to wire doc updates into build phases. A slot without a `gen:` note is a slot the agent will guess at.
 - **Nothing outside this repo and the target project may be written.** Gantry reads `~/.claude/agents/` and `~/.claude/AGENT-INDEX.md` to route work; it never writes there, and never fails a phase because an agent is missing.
+- **Never vendor an agent or skill from a user's `~/.claude/`.** Those files are third-party more often than not and carry no licence metadata; copying them into an MIT repo is a licence violation waiting to happen. If Gantry needs a role guaranteed, write the agent fresh — as was done for the four in `agents/`.
+- **Four bundled contract agents, and resist a fifth.** Each earns its place by enforcing a contract the process already asserts (read-only UAT, NEEDS WORK default, cited traceability, severity ratings). A general-purpose specialist does not qualify — that is what discovery is for. Every bundled agent is maintenance surface and tokens at load time.
 - **Commands stay re-runnable and resumable.** State lives in the target project's kernel files + git history, never in conversation. Any new step must tolerate re-execution after a crash, a gate, or a context clear.
 - **Gates are the only stops**, each with a defined evidence set in `lifecycle.md`. Adding a gate means adding its evidence row too.
 - **Version bumps touch two files in lockstep**: `.claude-plugin/plugin.json` (`version`) and the "Current: **vX.Y.Z**" line in `README.md`.

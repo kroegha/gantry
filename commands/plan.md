@@ -9,7 +9,7 @@ Generate the project's `BUILD-PLAN.md` from `${CLAUDE_PLUGIN_ROOT}/kernel/BUILD-
 ## Steps
 
 1. **Phases**: select/adapt from the phase library, ordered by dependency (P-BOOTSTRAP first, P-HARDENING and P-RELEASE last). Per phase: objective, PRD §refs, memory refs, ordered tasks, **test spec first**, gate + extras, exit criteria, API-spend estimate. Risky integrations get spikes in P-BOOTSTRAP.
-2. **Pre-flight (§2)**: everything only the owner can provide, per the contract's categories — including UAT Test Agent provisioning as a pre-S5 item.
+2. **Pre-flight (§2)**: everything only the owner can provide, per the contract's categories — including the language server for the chosen stack (named specifically, carried over from S2) and UAT Test Agent access as a pre-S5 item.
 3. **Decision defaults (§3)**: one or more rows per contract category, made project-specific from the PRD's risk register.
 4. **Agent routing (§4)**: resolve each role to a real `name:` from the live agent roster now — never copy an example table blind. Roles with no match are marked "unaided"; that is a valid plan, not a blocker.
 5. **Human gates (§7)**: money, PROD, comms + anything the owner added at S0 + UAT/G3 flow.
