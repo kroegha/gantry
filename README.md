@@ -2,97 +2,202 @@
 
 An agentic delivery OS for [Claude Code](https://claude.com/claude-code). Bring a PRD — or just an idea — and Gantry takes the project to production, stopping only where a human is genuinely required.
 
-```
-/gantry:prd                             # S-PRD: have a PRD? adopt it. No PRD? build one → G0
-/gantry:init docs/MyProduct_PRD_v1.0.md # S0:   kernel, git, remote, pre-flight
-/gantry:review-prd                      # S1:   "possible today" fact-check → PRD vNext → G1
-/gantry:stack                           # S2:   scored options + recommendation → G2a: you choose
-/gantry:plan                            # S3:   phased TDD BUILD-PLAN → G2 sign-off = handoff
-/gantry:run                             # S4–S5: autonomous build → in-run gates → UAT → G3 → PROD
-/gantry:harvest                         # S6:   distil learnings into Gantry's memory (approval-gated)
-```
-
 Seven stages, six gates. Between gates it does not stop to ask.
 
-## Why this exists
-
-Most agent failures on real projects are not coding failures. They are: building from a spec that was wrong about the world, choosing a stack the agent cannot actually build in, stalling on a missing credential, or asking a human a question at 2am and idling until morning.
-
-Gantry addresses each one directly — a research-first PRD review, a scored stack evaluation that weights *agent buildability*, a pre-flight pass that eliminates blockers before the run, and decision defaults that resolve ambiguity by rule instead of by interruption.
-
-## What it enforces
-
-**PRD intake before anything else** (adopt yours, or author one through a guided interview) · **TDD** — failing tests first, gates never weakened · a **no-interruption contract** — pre-flight plus decision defaults instead of mid-run questions · **living deliverable docs** (architecture, UAT, deployment, maintenance, env-vars, security) that are written as work happens, not in an end-of-project sprint · a **read-only UAT agent** with a separate dev-agent fix loop · **agent routing** by discovery against whatever sub-agent library you have — and unaided if you have none · **two-tier memory** that improves the OS after every project.
-
-It is brand-neutral by design: no company name is stamped on anything it generates unless you supply one, and no market's payment rails, tax rules, or privacy law are assumed as defaults.
+---
 
 ## Install
-
-This repo is both the plugin and its own single-plugin marketplace.
 
 ```
 /plugin marketplace add kroegha/gantry
 /plugin install gantry@gantry-marketplace     ← choose User scope for all projects
 ```
 
-Verify: `/plugin list` shows `gantry`; typing `/gantry` autocompletes the eight commands.
+Verify: `/plugin list` shows `gantry`, and typing `/gantry` autocompletes the commands.
 
-**Updating:**
+**Updating:** `/plugin marketplace update gantry-marketplace`. Stale behaviour after an update → remove `~/.claude/plugins/cache`, restart, reinstall. Errors appear under `/plugin` → **Errors**.
+
+---
+
+# Using Gantry
+
+## The 30-second version
+
+Open a terminal in an **empty folder** for your new project, start Claude Code, and type:
 
 ```
-/plugin marketplace update gantry-marketplace
+/gantry:prd
 ```
 
-Troubleshooting: `/plugin` → **Errors** tab. Stale behaviour after an update → remove `~/.claude/plugins/cache`, restart, reinstall.
+Answer its questions. From there, every command tells you the next one. You will type seven commands over the life of the project, approve at six gates, and the agent does everything in between.
 
-### Word document output (optional but recommended)
+## Where to run it
+
+**In the project folder, not in Gantry's folder.** Gantry is installed once, globally; you run its commands from inside whatever project you are building. The folder should be either:
+
+- **empty** — the normal case, or
+- **containing only your input documents** (an existing PRD, environment guides, a design template)
+
+Do not run `/gantry:init` in a folder that already has an unrelated codebase in it. Gantry generates a project kernel at the root and expects to own it.
+
+## What you actually type, and what happens
+
+| # | You type | What the agent does | It stops at | You do |
+|---|---|---|---|---|
+| 1 | `/gantry:prd` | Asks whether you have a PRD. **Yes** → adopts it (converts, copies to `docs/`, checks structure). **No** → runs a full requirements interview, does market research, writes the PRD + `.docx` | **G0** | Approve the PRD as the input document |
+| 2 | `/gantry:init docs/YourProduct_PRD_v1.0.md` | Builds the project kernel (CLAUDE.md, PLANNING.md, TASK.md, DECISIONS.md, OPEN-QUESTIONS.md, LEARNINGS.md, `docs/`), asks up to 6 gap questions, `git init`, offers to create the remote, writes the pre-flight checklist | asks its 6 questions, then continues | Answer the gap questions |
+| 3 | `/gantry:review-prd` | Fact-checks every external claim in the PRD against the live web — vendors, APIs, model names, prices, regulations — with sources. Writes a review doc, then applies it to produce PRD vNext | **G1** | Approve the corrected PRD as spec of record |
+| 4 | `/gantry:stack` | Researches 2–3 candidate stacks, scores them against weighted criteria, drafts ADR-001 | **G2a** | **Pick a stack** from the options offered |
+| 5 | `/gantry:plan` | Writes BUILD-PLAN.md: phases, test specs, gates, agent routing, decision defaults, UAT scenarios | **G2** | Approve the plan — **this authorises the autonomous run** |
+| 6 | `/gantry:run` | Builds the product phase by phase: PRP → failing tests → implement → gate → review → commit → push. Hours of work | only at **declared in-run gates** (live money, production, comms) and **G3** | Approve those specific things |
+| 7 | `/gantry:harvest` | Retro: mines what was learned, proposes updates to Gantry's own memory and templates | proposal | Approve the diffs |
+
+There is an eighth command, `/gantry:gate`, but **you normally never type it** — the stage commands invoke it themselves when they reach a stop. Type it yourself only if you want a gate's evidence re-presented.
+
+## Yes, you run each command yourself
+
+There is no single "do everything" command, and that is deliberate. The six gates are decisions only you can make — whether the spec is right, which stack to use, whether the plan is worth authorising, whether real money may move, whether it ships. A command per stage is what makes those decisions unavoidable rather than assumed.
+
+The commands are not a burden to remember: **every one ends by telling you what to run next.** You can also just ask, in plain language, "what's next?" — the agent reads the project state from files and tells you.
+
+## What a gate looks like
+
+The agent stops and shows you:
+
+1. **The evidence** for this specific gate (defined per gate, not improvised)
+2. **The ledger since the last gate** — decisions it made on your behalf, open questions it parked, budget spent vs estimated
+3. **One sentence stating exactly what your approval authorises**
+
+Then it waits.
+
+**Reply in plain language.** "Approved", or "approved but change X", or a question. If you amend, it applies the amendment, restates, and asks again.
+
+**Silence is never approval.** The agent will not proceed because you went quiet, and it will not interpret "looks good" on an unrelated point as a gate approval.
+
+## The big one: `/gantry:run`
+
+This is where most of the work happens, and it is meant to run for a long time without you.
+
+- It works through BUILD-PLAN phases in order, writing failing tests before implementation, running the validation gate after each, and committing per task.
+- **It will not stop to ask you questions.** When it hits ambiguity it applies a decision default from the plan and logs it to `DECISIONS.md`. When something is genuinely blocked, it stubs it behind a feature flag, logs it to `OPEN-QUESTIONS.md`, and moves on.
+- It stops only for what the plan declared: a live test-mode payment, a production deploy, anything sent in your name — and finally **G3** before production.
+
+**After a gate stops the run**, approve and it continues in the same session. If the session has ended, just type `/gantry:run` again — it reconciles `TASK.md` against git history, tells you where it is resuming, and carries on.
+
+**Read `DECISIONS.md` and `OPEN-QUESTIONS.md` while it runs.** That is where it records every judgement call it made instead of interrupting you. Gates summarise them, but the files are live.
+
+## Stopping, resuming, and crashes
+
+Every command is re-runnable and resumable. State lives in files and git history, never in the conversation.
+
+- **Close the laptop mid-run?** Re-run the same command later.
+- **Context cleared or compacted?** The agent re-reads `PLANNING.md`, `TASK.md`, and the current phase before touching anything.
+- **Crashed?** There is no recovery procedure — crashing is just stopping. Re-run the command.
+- **Fresh session tomorrow?** Open the project folder, run the next command. It picks up the state itself.
+
+Re-running a *completed* stage is safe: `/gantry:init` diff-updates rather than overwriting, and `/gantry:prd` asks before touching an existing PRD.
+
+## Two ways to start
+
+**You have no PRD** — the common case:
+
+```
+cd my-new-project
+claude
+/gantry:prd
+```
+
+It interviews you (product, users, scope, market, budget), researches competitors, writes the PRD and a market-research document, renders the `.docx`, and stops at G0.
+
+**You already have a PRD** — pass it, or drop it in the folder first:
+
+```
+cd my-new-project          # with your existing PRD file in it
+claude
+/gantry:prd path/to/your-prd.docx
+```
+
+It converts, copies, and structure-checks it — **without editing the content**. Correcting the content is S1's job, and S1 needs your original to diff against.
+
+Either way you can also just run `/gantry:init` first: if it finds no PRD, it routes you into `/gantry:prd` automatically rather than erroring.
+
+## What Gantry will never do without asking
+
+Deploy to production · move real money · send anything in your name · delete a service or data · force-push. These wait for a gate regardless of what it costs in progress.
+
+---
+
+## What it enforces
+
+**PRD intake before anything else** · **TDD** — failing tests first, gates never weakened · a **no-interruption contract** — pre-flight plus decision defaults instead of mid-run questions · **living deliverable docs** (architecture, UAT, deployment, maintenance, env-vars, security) written as work happens, not in an end-of-project sprint · a **read-only UAT agent** with a separate dev-agent fix loop · **agent routing** by discovery against whatever sub-agent library you have — and unaided if you have none · **two-tier memory** that improves the OS after every project.
+
+It is brand-neutral by design: no company name is stamped on anything it generates unless you supply one, and no market's payment rails, tax rules, or privacy law are assumed as defaults.
+
+## Why this exists
+
+Most agent failures on real projects are not coding failures. They are: building from a spec that was wrong about the world, choosing a stack the agent cannot actually build in, stalling on a missing credential, or asking a human a question at 2am and idling until morning.
+
+Gantry addresses each directly — a research-first PRD review, a scored stack evaluation that weights *agent buildability*, a pre-flight pass that eliminates blockers before the run, and decision defaults that resolve ambiguity by rule instead of by interruption.
+
+---
+
+## Before your first autonomous run
+
+**1. Permissions — the one that actually matters.** Approval dialogs kill autonomous runs; the agent will sit waiting for a click that never comes. Pre-approve what the run needs in `~/.claude/settings.json` (or via `/permissions`):
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Edit", "Write",
+      "Bash(git *)", "Bash(gh *)", "Bash(npm *)", "Bash(npx *)",
+      "Bash(docker *)", "Bash(docker compose *)",
+      "WebFetch", "WebSearch"
+    ]
+  }
+}
+```
+
+Extend for your stack. `claude --dangerously-skip-permissions` also works but removes every guardrail — prefer the allowlist.
+
+**2. A git host CLI**, authenticated, if you want S0 to create the remote for you. Optional — S0 works locally without it and logs it as a pre-flight item.
+
+**3. A sub-agent library** in `~/.claude/agents/`, if you have one. Gantry discovers and routes to it, never modifies it, and proceeds unaided if it is absent.
+
+**4. An environment profile** for your deployment target. Copy `process/environments/_template.md` and fill it in once per estate you reuse. Without one, deployment details become pre-flight questions rather than guesses.
+
+### Word document output (optional)
 
 PRDs render to `.docx` for stakeholders. This is the only part of Gantry that needs a dependency:
 
 ```bash
-npm install        # in the Gantry plugin directory — installs `docx`
+npm install        # run inside the installed Gantry plugin directory
 ```
 
-Without it, everything still works and PRDs stop at markdown, which is the version of record regardless. Styling is controlled entirely by `skills/_shared/style-constants.js` — edit that one file to match a house style.
+The plugin's location depends on how you installed it (marketplace installs live under `~/.claude/plugins/`; `/plugin` shows the path). If you would rather not hunt for it, clone this repo and run `npm install` there, or skip it entirely — **without it everything still works and PRDs stop at markdown, which is the version of record regardless.**
 
-### Before the first autonomous run
+Styling is controlled by `skills/_shared/style-constants.js` — edit that one file to match a house style.
 
-1. **Permissions.** Approval dialogs kill autonomous runs. Pre-approve what the run needs in `~/.claude/settings.json` (or via `/permissions`):
-
-   ```json
-   {
-     "permissions": {
-       "allow": [
-         "Edit", "Write",
-         "Bash(git *)", "Bash(gh *)", "Bash(npm *)", "Bash(npx *)",
-         "Bash(docker *)", "Bash(docker compose *)",
-         "WebFetch", "WebSearch"
-       ]
-     }
-   }
-   ```
-
-   Extend per project stack. `claude --dangerously-skip-permissions` also works but removes every guardrail — prefer the allowlist.
-2. **A git host CLI**, authenticated, if you want S0 to create the remote for you. Optional; S0 works locally without it.
-3. **A sub-agent library** in `~/.claude/agents/` if you have one — Gantry discovers and routes to it, never modifies it, and proceeds unaided if it is absent.
-4. **An environment profile** for your deployment target. Copy `process/environments/_template.md` and fill it in once per estate you reuse. Without one, deployment details become pre-flight items rather than guesses.
+---
 
 ## Repo map
 
 | Path | What |
 |---|---|
-| `commands/` | The eight `/gantry:*` stage commands |
+| `commands/` | The eight `/gantry:*` commands |
 | `process/` | The manual: lifecycle, PRD intake, no-interruption contract, agent routing, stack evaluation, quality gates, phase library, deliverables, memory, environment profile template |
 | `kernel/` | Templates instantiated into each project (CLAUDE.md, PLANNING, BUILD-PLAN, PRP, docs-templates/) |
 | `skills/` | Bundled `prd-create` and `prd-update`, plus the shared docx generator |
 | `memory/` | Cross-project memory (gotchas, patterns, calibration) — written only at harvest |
-| `examples/marketstall.md` | Worked example + acid-test checklist |
+| `examples/marketstall.md` | A worked example end-to-end, plus the acid-test checklist |
+
+**New here? Read [`examples/marketstall.md`](examples/marketstall.md).** It walks a fictional project through all seven stages and shows what each one actually produces.
 
 ## Design notes
 
 **Gates are the only stops.** Each has a defined evidence set. The agent presents evidence, states exactly what approval authorises, and waits — never proceeding on silence.
 
-**State lives in files, not conversation.** Every command is re-runnable and resumable; a crash, a context clear, or a closed laptop is just stopping. Re-running picks up from the first incomplete item.
+**State lives in files, not conversation.** Every command is re-runnable and resumable; a crash, a context clear, or a closed laptop is just stopping.
 
 **Memory is single-writer.** Cross-project memory is written only at harvest, which is what lets concurrent project runs coexist without conflicting.
 

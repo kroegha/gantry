@@ -32,7 +32,7 @@ docs/{{PRODUCT_NAME}}_MarketResearch_v1.0.md   ← Route B only
 
 1. **Locate and read it in full.** Accept `.md`, `.docx`, `.pdf`, or plain text. Never work from the filename or a summary.
 2. **Convert to markdown** if it is not already — markdown in the repo is always the source of truth. Preserve section numbering, tables, and annexures; note anything that did not survive conversion.
-3. **Copy, don't move.** The owner's original stays where it was. Record the source path in `DECISIONS.md`.
+3. **Copy, don't move.** The owner's original stays where it was. Record the source path in `DECISIONS.md` **if the kernel already exists**; in an empty folder S-PRD runs before S0 creates it, so put the source path in the G0 report instead and S0 carries it into `DECISIONS.md` at bootstrap. Do not create kernel files early to have somewhere to write.
 4. **Rename to the canonical form.** If the document carries its own version, keep it; otherwise `v1.0`.
 5. **Structural sanity check** — not a content review, that is S1's job. Report what is present and what is missing against the section list in `${CLAUDE_PLUGIN_ROOT}/skills/prd-create/references/section-templates.md`. Missing sections are logged as G0 evidence, never silently filled in.
 6. **Render the `.docx`** if one was not supplied.

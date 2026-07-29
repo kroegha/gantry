@@ -19,6 +19,7 @@ Read first: `${CLAUDE_PLUGIN_ROOT}/process/lifecycle.md`.
    - `CLAUDE.md`, `PLANNING.md`, `TASK.md`, `DECISIONS.md`, `OPEN-QUESTIONS.md`, `LEARNINGS.md`
    - `PRPs/templates/prp_base.md` (copy)
    - `docs/` structure: the PRD stays at its canonical path; add `docs/env/`, `docs/design/`, `docs/spikes/`, and seed `docs/env-vars.md`
+   - If S-PRD reported a PRD source path (adopted from elsewhere), record it in `DECISIONS.md` now — S-PRD had no kernel to write it to
    - If a design template was provided: write `docs/design/DESIGN-NOTES.md` — review it (tokens, strengths, gaps, a11y flags, porting map) before any UI work exists.
 6. **Pre-flight checklist**: generate per `${CLAUDE_PLUGIN_ROOT}/process/no-interruption-contract.md` §1 into `OPEN-QUESTIONS.md` (or a BUILD-PLAN placeholder) — every account/key/service only the owner can provide.
 7. **Git + remote**:
