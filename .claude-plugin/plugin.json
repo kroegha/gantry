@@ -2,7 +2,7 @@
   "name": "gantry",
   "displayName": "Gantry",
   "version": "0.1.0",
-  "description": "An agentic delivery OS for Claude Code: bring a PRD — or just an idea — and Gantry takes it to production. PRD intake and authoring, research-first PRD review, scored stack evaluation, phased TDD build plan, autonomous run with human gates, living deliverable docs, and cross-project memory.",
+  "description": "An agentic delivery OS for Claude Code. Run /gantry:start with a PRD — or just an idea — and it carries the project to production: PRD intake and authoring, research-first PRD review, scored stack evaluation, phased TDD build plan, autonomous run, living deliverable docs, and cross-project memory. It runs continuously, stopping only for your answers and six approvals.",
   "author": { "name": "kroegha" },
   "homepage": "https://github.com/kroegha/gantry",
   "license": "MIT",

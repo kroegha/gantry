@@ -49,12 +49,25 @@ Never stop to ask. Apply these, log in `DECISIONS.md`:
 
 ## 4. Agent routing
 
-<!-- gen: from process/agent-routing.md against the live agent roster; resolve every role
-     to a real `name:` or to "unaided". Never copy an example table blind. -->
+<!-- gen: from process/agent-routing.md. The four contract agents below are fixed — copy
+     them as-is, do not substitute a discovered equivalent. For the capability roles,
+     resolve each to a real `name:` from the live roster, or to "unaided". Never copy an
+     example capability table blind. -->
+
+**Contract agents (bundled with Gantry — do not substitute):**
+
+| Work | Agent |
+|---|---|
+| Per-phase diff review | `code-reviewer` — severity-rated findings; fix ≥ medium before the phase closes |
+| Risky-phase exit / readiness verdict | `reality-checker` — defaults to NEEDS WORK; green tests are not evidence |
+| UAT execution (S5) | `uat-test-agent` — **read-only**; tests and reports, never fixes or commits |
+| Requirements audit (S5) | `requirements-auditor` — PRD → `file:line` traceability |
+
+**Capability agents (resolved from the local library at S3):**
+
 | Work | Agent |
 |---|---|
 {{AGENT_ROUTING_TABLE}}
-| UAT (S5) | Read-only Test Agent — tests + reports only; never modifies the project |
 
 ## 5. Phases
 
