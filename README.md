@@ -147,7 +147,7 @@ Deploy to production · move real money · send anything in your name · delete 
 
 ## What it enforces
 
-**PRD intake before anything else** · **TDD** — failing tests first, gates never weakened · a **no-interruption contract** — pre-flight plus decision defaults instead of mid-run questions · **living deliverable docs** (architecture, UAT, deployment, maintenance, env-vars, security) written as work happens, not in an end-of-project sprint · a **read-only UAT agent** with a separate dev-agent fix loop · **agent routing** by discovery against whatever sub-agent library you have — and unaided if you have none · **two-tier memory** that improves the OS after every project.
+**PRD intake before anything else** · **TDD** — failing tests first, gates never weakened · a **no-interruption contract** — pre-flight plus decision defaults instead of mid-run questions · **living deliverable docs** (architecture, UAT, deployment, maintenance, env-vars, security) written as work happens, not in an end-of-project sprint · a **read-only UAT agent** with a separate dev-agent fix loop · **agent routing** that uses specialists from your library where they fit and Claude Code's built-in `general-purpose` agent where they don't, so delegation works with no setup at all · **two-tier memory** that improves the OS after every project.
 
 It is brand-neutral by design: no company name is stamped on anything it generates unless you supply one, and no market's payment rails, tax rules, or privacy law are assumed as defaults.
 
@@ -180,7 +180,7 @@ Extend for your stack. `claude --dangerously-skip-permissions` also works but re
 
 **2. A git host CLI**, authenticated, if you want S0 to create the remote for you. Optional — S0 works locally without it and logs it as a pre-flight item.
 
-**3. A sub-agent library** in `~/.claude/agents/`, if you have one — for the *capability* roles (backend, frontend, infrastructure, security design). Gantry discovers and routes to it, never modifies it, and proceeds unaided if it is absent. The four **audit** roles ship with Gantry and are used in preference to anything discovered — see below.
+**3. A sub-agent library** in `~/.claude/agents/` — **entirely optional.** If you have one, Gantry discovers specialists in it for the *capability* roles (backend, frontend, infrastructure, security design) and never modifies it. If you don't, it delegates those roles to Claude Code's built-in `general-purpose` agent with a written role brief instead — so you still get delegation, context isolation, and parallel work with zero setup. A library buys you tuned system prompts, not the mechanism. The four **audit** roles ship with Gantry either way.
 
 **4. An environment profile** for your deployment target. Copy `process/environments/_template.md` and fill it in once per estate you reuse. Without one, deployment details become pre-flight questions rather than guesses.
 
@@ -204,7 +204,9 @@ Gantry ships four agents and uses them in preference to same-role agents in your
 | `reality-checker` | Defaults to **NEEDS WORK** and refuses to pass on green tests alone |
 | `code-reviewer` | Rates every finding by severity, which is what makes the phase gate's "fix ≥ medium" rule mean anything |
 
-Everything else — backend, frontend, infrastructure, security design, architecture — is routed to your own library by discovery, or done unaided if you have none. Gantry vendors nothing from `~/.claude/`.
+Everything else — backend, frontend, infrastructure, security design, architecture — is routed to a specialist in your own library where one genuinely fits, and otherwise to Claude Code's built-in `general-purpose` agent carrying a role brief Gantry writes (the phase's PRP, the PRD sections, the pattern files, the kernel's constraints). **Delegation does not depend on you installing anything.** Gantry vendors nothing from `~/.claude/`.
+
+Expect roughly **2–4 subagents per build phase** — one or two implementers, the code reviewer, and a reality check or security review where the phase calls for it. Each phase logs its actual spend against the plan's estimate.
 
 ### Word document output (optional)
 

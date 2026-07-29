@@ -104,7 +104,7 @@ Decision defaults made project-specific — including the one the interview surf
 | AI provider returns 5xx | Refund the credit, surface a retry, log |
 | Copy or design detail unspecified | Brand style guide first, then framework defaults |
 
-Agent routing (§4) fixes the four contract agents — `code-reviewer` on every phase diff, `reality-checker` at risky exits, `uat-test-agent` and `requirements-auditor` at S5 — and resolves the capability roles (backend, frontend, devops) against whatever library the machine has. Here it found three and marked the rest unaided.
+Agent routing (§4) fixes the four contract agents — `code-reviewer` on every phase diff, `reality-checker` at risky exits, `uat-test-agent` and `requirements-auditor` at S5 — and resolves the capability roles (backend, frontend, devops) against whatever library the machine has. This owner had none installed, so all three resolved to `general-purpose` with a written role brief: the phase's PRP, the PRD sections, the pattern files to follow, and the kernel's constraints. They still ran as separate agents in their own contexts; what they lacked was a tuned system prompt, not delegation.
 
 **G2** — sign-off authorises the autonomous run, and the run starts on approval. The owner does not type anything.
 

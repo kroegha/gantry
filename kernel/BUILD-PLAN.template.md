@@ -51,8 +51,9 @@ Never stop to ask. Apply these, log in `DECISIONS.md`:
 
 <!-- gen: from process/agent-routing.md. The four contract agents below are fixed — copy
      them as-is, do not substitute a discovered equivalent. For the capability roles,
-     resolve each to a real `name:` from the live roster, or to "unaided". Never copy an
-     example capability table blind. -->
+     resolve each down the resolution ladder: a matched specialist from the local library,
+     else `general-purpose` + a role brief (the normal result with no library installed —
+     record it as such, not as "none"). Never copy an example capability table blind. -->
 
 **Contract agents (bundled with Gantry — do not substitute):**
 
