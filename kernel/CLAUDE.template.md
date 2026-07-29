@@ -111,4 +111,7 @@
 ### Delegation
 
 - **Delegate per BUILD-PLAN §4**, which maps phases to preferred agents.
+- **The orchestrator does no implementation work.** It briefs agents, receives compact results, records state in the kernel files, and commits. It does not write code, read source to check something, or load the PRD and PRPs into its own context — that context has to last the whole build.
+- **Briefs carry paths and section references, never pasted file contents.** The agent has its own context and its own file tools.
+- **Results come back structured and short:** status · files changed (paths) · gate result · decisions · open questions · learnings · blocked-on. No code, no diffs, no command output.
 - The **UAT Test Agent is read-only** on this project — it tests and reports, and never fixes what it finds. Never ask it to.

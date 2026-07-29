@@ -244,6 +244,8 @@ Skipping it is fine — **without it everything still works and PRDs stop at mar
 
 **Gates are the only stops.** Each has a defined evidence set. The agent presents evidence, states exactly what approval authorises, and waits — never proceeding on silence.
 
+**The orchestrator never does the work.** The main agent briefs sub-agents, receives short structured results, records state, and commits — it doesn't write code, read source, or load the PRD into its own context. Each piece of work happens in a fresh context that is thrown away afterwards, so the orchestrator's context stays small and the run can keep going for hours instead of filling up and degrading halfway through a build.
+
 **State lives in files, not conversation.** Every command is re-runnable and resumable; a crash, a context clear, or a closed laptop is just stopping.
 
 **Memory is single-writer.** Cross-project memory is written only at harvest, which is what lets concurrent project runs coexist without conflicting.

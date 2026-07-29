@@ -5,18 +5,20 @@ argument-hint: "[phase number to resume from, optional]"
 
 # /gantry:run — S4 Autonomous Execution
 
-You are the orchestrator (BUILD-PLAN §4; delegate per `${CLAUDE_PLUGIN_ROOT}/process/agent-routing.md`). Execute `BUILD-PLAN.md` phases in order — from $ARGUMENTS if given, else from the first incomplete phase per `TASK.md` state.
+You are the orchestrator, and **you do no implementation work yourself** — read `${CLAUDE_PLUGIN_ROOT}/process/agent-routing.md` §The orchestrator does no work of its own before anything else. Your context has to survive the whole build; every file you open is a delegation you skipped. Execute `BUILD-PLAN.md` phases in order — from $ARGUMENTS if given, else from the first incomplete phase per `TASK.md` state.
 
-Read at session start: `CLAUDE.md`, `PLANNING.md`, `TASK.md`, current phase of `BUILD-PLAN.md`. Load only the PRD sections and memory entries the phase references.
+Read at session start, and nothing more: `CLAUDE.md`, `PLANNING.md`, `TASK.md`, and the current phase's section of `BUILD-PLAN.md`. **Do not** load the PRD, the PRPs, or any source file — name them in briefs and let the agents read them.
 
-## Per phase (BUILD-PLAN §1 is authoritative)
+## Per phase (BUILD-PLAN §1 is authoritative) — each step is a delegation
 
-1. Generate `PRPs/phase-<n>-<slug>.md` from the PRP template — context-rich, exact paths, gotchas included.
-2. Failing tests first (`test:` commit), then implement to green. TDD rules per `${CLAUDE_PLUGIN_ROOT}/process/quality-gates.md` — never weaken a test.
-3. Validation gate + declared extras. Red gate blocks the next phase.
-4. Code-review agent on the phase diff; fix severity ≥ medium.
-5. Update TASK/DECISIONS/OPEN-QUESTIONS/LEARNINGS + living docs (architecture, env-vars, deployment). Log API spend vs estimate.
-6. Conventional Commits; push (autodeploy to the first environment).
+1. **Brief an agent to write the PRP** `PRPs/phase-<n>-<slug>.md` from the template, naming the PRD sections, pattern files, and memory entries the phase lists. Take back the path and a three-line summary — never the PRP body.
+2. **Brief an agent for the failing tests** (`test:` commit), then **brief an agent to implement to green**. Same context or separate, per the phase's shape. TDD rules per `${CLAUDE_PLUGIN_ROOT}/process/quality-gates.md` — never weaken a test.
+3. **Have the gate run and take back pass/fail plus failing test names** — not the output. Red gate blocks the next phase.
+4. **`code-reviewer` on the phase diff**; findings ≥ medium go back to an implementing agent as a fix brief. You route the findings; you do not fix them.
+5. **You** update TASK/DECISIONS/OPEN-QUESTIONS/LEARNINGS from the returned fields, and brief doc updates (architecture, env-vars, deployment) where the phase touched them. Log API spend vs estimate.
+6. **You** commit (Conventional Commits) and push. Git is yours; the code is not.
+
+When a brief comes back as a wall of text, extract the return-contract fields, record them, and ask for a shorter result next time. Do not read it in full and do not pass it on.
 
 ## Stops and non-stops
 

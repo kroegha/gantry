@@ -9,7 +9,7 @@ Follow `${CLAUDE_PLUGIN_ROOT}/process/stack-evaluation.md` exactly. Inputs: the 
 ## Steps
 
 1. Derive weighted requirements from the PRD (workload profile, memory/edge needs, integrations, compliance, scale, budget). Declare weights before scoring.
-2. Shortlist 2–3 candidate stacks; research each with current, cited evidence (SDK coverage, costs, LTS status, environment fit, availability in the project's market).
+2. Shortlist 2–3 candidate stacks, then **brief one agent per candidate** to research it and return a filled scorecard row: score per dimension, a one-line evidence note with a source URL per score, and the option's weakest dimension. Keep the research out of your own context — you are comparing candidates, not reading documentation (`${CLAUDE_PLUGIN_ROOT}/process/agent-routing.md`). Evidence must be current and cited: SDK coverage, costs, LTS status, environment fit, availability in the project's market.
 3. Score the card; write draft `docs/adr/ADR-001-stack.md` with a scored comparison, recommendation, and consequences (including each option's weakest dimension).
 4. **Gate G2a — the owner chooses**: present the options via a multiple-choice question — one line of trade-off per option, recommendation marked. Do not proceed on silence.
 5. Record the choice + rationale in ADR-001 (Accepted); start `docs/architecture.md` from the template with the L1/L2 sketch.

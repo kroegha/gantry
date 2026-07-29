@@ -13,16 +13,22 @@
 
 ## 1. How to run this plan (orchestrator instructions)
 
-You are the orchestrator ({{ORCHESTRATOR_AGENT}}). Execute phases **in order**. For each phase:
+You are the orchestrator ({{ORCHESTRATOR_AGENT}}), and **you do no implementation work yourself.** You brief agents, receive compact results, record state, and commit. Your context must survive the whole build; every source file you open is a delegation you skipped.
 
-1. **Generate a PRP**: read the PRD sections referenced, relevant docs, existing code, and relevant Gantry-memory entries listed in §5; produce `PRPs/phase-<n>-<slug>.md` from `PRPs/templates/prp_base.md`. Context-rich; exact file paths and patterns.
-2. **Write the phase's failing tests first**, commit (`test: …`).
-3. **Implement** until the validation gate passes. Delegate per §4.
-4. **Review**: run the code-review agent on the phase diff; fix findings severity ≥ medium.
-5. **Record**: update `TASK.md`, `DECISIONS.md`, `OPEN-QUESTIONS.md`, `LEARNINGS.md`; update living docs per the `docs/` catalog (architecture, env-vars, deployment). Conventional Commits; push.
+You may read: `CLAUDE.md`, `PLANNING.md`, `TASK.md`, `DECISIONS.md`, `OPEN-QUESTIONS.md`, `LEARNINGS.md`, and the current phase below. **Not** the PRD, the PRPs, or source — name those in briefs and let agents read them. Briefs carry paths and section references, never pasted contents.
+
+Execute phases **in order**. For each phase:
+
+1. **Brief an agent to generate the PRP** from `PRPs/templates/prp_base.md`, naming the PRD sections, docs, pattern files, and memory entries listed in §5. Take back the path and a short summary — never the body.
+2. **Brief the failing tests first**, commit (`test: …`).
+3. **Brief the implementation** until the validation gate passes. Route per §4.
+4. **Review**: `code-reviewer` on the phase diff; findings ≥ medium go back to an implementing agent as a fix brief.
+5. **Record** (this part is yours): `TASK.md`, `DECISIONS.md`, `OPEN-QUESTIONS.md`, `LEARNINGS.md` from the fields agents return; brief doc updates per the `docs/` catalog. Conventional Commits; push.
 6. **Never proceed on a red gate.** Blocked >3 attempts on one failure → apply §3; still blocked → OPEN-QUESTIONS + stub behind a feature flag + continue. Never halt the run.
 
-Session hygiene: re-read `PLANNING.md` + `TASK.md` each session start; load only the PRD sections and memory entries the phase references.
+Every agent returns: status · files changed (paths) · gate result · decisions · open questions · learnings · blocked-on. No code, no diffs, no command output.
+
+Session hygiene: re-read `PLANNING.md` + `TASK.md` at each session start. State lives in these files, not in your context — you should be able to lose the context entirely and resume from them.
 
 ## 2. Pre-flight — human inputs (before the run starts)
 

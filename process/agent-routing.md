@@ -1,4 +1,55 @@
-# Agent Routing — four bundled contract agents, everything else by discovery
+# Agent Routing — the orchestrator delegates; four bundled contract agents; everything else by discovery
+
+## The orchestrator does no work of its own
+
+The main Gantry agent is an **orchestrator, and nothing else**. Its job is to decide what happens next, brief an agent to do it, receive a compact result, record state, and repeat. It has to survive an entire build — many phases, many hours — so its context is the scarcest resource in the system and every token it spends on work it could have delegated is taken from the run's lifespan.
+
+**The orchestrator never:**
+
+- writes or edits source, tests, config, or migrations
+- reads source files to "check" something — it asks an agent
+- loads the full PRD, a full PRP, or a large document into its own context
+- pastes file contents into a subagent prompt, or accepts them back
+- debugs, greps the codebase, or explores structure
+
+**The orchestrator only:**
+
+- reads and writes the small state files — `TASK.md`, `DECISIONS.md`, `OPEN-QUESTIONS.md`, `LEARNINGS.md`, and the current phase's section of `BUILD-PLAN.md`
+- briefs agents and evaluates what they return
+- runs git operations and commits
+- presents gates to the owner
+
+If you catch yourself opening a source file, stop: that is a delegation you skipped.
+
+### Pass references, never contents
+
+Briefs carry **paths and section references**, never pasted text. `docs/Product_PRD_v2.0.md §5.3–5.6`, `src/payments/ledger.ts`, `PRPs/phase-6-payments.md`. The agent has its own context and its own file tools — let it read. Pasting a file into a prompt copies it into *two* contexts and buys nothing.
+
+This applies to PRP generation as well: **delegate it.** Producing a context-rich PRP means reading the PRD, the existing code, and the memory entries — precisely the loading the orchestrator must avoid. Brief an agent to write `PRPs/phase-<n>-<slug>.md` and take back only its path and a three-line summary.
+
+### The return contract
+
+Every agent returns a compact, structured result. Brief them to return **this and nothing else**:
+
+| Field | Content |
+|---|---|
+| Status | done / blocked / partial |
+| Files changed | paths only, no diffs |
+| Gate result | pass, or fail with the failing test names |
+| Decisions applied | one line each, for `DECISIONS.md` |
+| Open questions | one line each, with the default applied meanwhile |
+| Learnings | one line each, only where reality surprised them |
+| Blocked on | what a human or another agent must supply |
+
+Roughly twenty lines. **No code, no diffs, no file contents, no full command output, no narration of the work.** If an agent returns a wall of text, do not read it in full and do not paste it onward — extract the fields above, record them, and move on. Ask for a shorter result next time.
+
+The return contract is what makes long runs possible. Work sent out cheaply but returned expensively fills the orchestrator's context just as fast as doing the work itself.
+
+### Checkpoint to files, not to memory
+
+State lives in `TASK.md`, `DECISIONS.md`, `OPEN-QUESTIONS.md`, `LEARNINGS.md`, and git — written as things happen. The orchestrator should be able to lose its entire context and resume from those files alone, which is exactly what happens after a compact and what `/gantry:start` relies on.
+
+---
 
 There are two kinds of agent in this lifecycle, and they are routed differently.
 
@@ -29,7 +80,7 @@ Every capability role resolves down this ladder. **Stop at the first rung that w
 |---|---|---|
 | 1 | **A matched specialist** from the local library | A `description` genuinely matches the role's trigger conditions |
 | 2 | **`general-purpose` subagent + a role brief you write** | No specialist matched — which is the normal case on a fresh install |
-| 3 | **Do it in the main context** | Subagents are unavailable entirely, or the task is too small to be worth a context switch |
+| 3 | **Do it in the orchestrator's own context** | **Only** for a change too small to brief — a one-line config edit, a typo — or if subagents are genuinely unavailable. **Never for implementation, debugging, or reading source.** See §The orchestrator does no work of its own |
 
 **Rung 2 is the default, not a degraded mode.** `general-purpose` is built into Claude Code and exists with no library installed at all. An empty `~/.claude/agents/` costs you a tuned system prompt — it does not cost you delegation, context isolation, or parallelism, and Gantry must not behave as though it does.
 
