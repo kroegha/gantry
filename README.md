@@ -161,30 +161,36 @@ Gantry addresses each directly — a research-first PRD review, a scored stack e
 
 ## Before your first autonomous run
 
-**1. Permissions — the one that actually matters.** Approval dialogs kill autonomous runs; the agent will sit waiting for a click that never comes. Pre-approve what the run needs in `~/.claude/settings.json` (or via `/permissions`):
+**1. Permissions — the one that actually matters.** Approval dialogs kill autonomous runs; the agent sits waiting for a click that never comes. Put this in `~/.claude/settings.json` (or use `/permissions`):
 
 ```json
 {
   "permissions": {
     "allow": [
+      "Bash",
       "Read(~/.claude/**)",
-      "Edit", "Write",
-      "Bash(git *)", "Bash(gh *)", "Bash(node *)",
-      "Bash(npm *)", "Bash(npx *)",
-      "Bash(docker *)", "Bash(docker compose *)",
-      "WebFetch", "WebSearch"
+      "Edit", "Write", "WebFetch", "WebSearch"
+    ],
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard*)"
     ]
   }
 }
 ```
 
-> **`Read(~/.claude/**)` is not optional, and it is the one people leave out.** Reads *inside* your project don't prompt, but Gantry's own process docs live with the installed plugin under `~/.claude/plugins/`, and every command begins by reading one. Without this rule you get a permission dialog before every single stage — which defeats the entire point of the tool. The same rule covers `~/.claude/AGENT-INDEX.md` and your agents directory, which routing reads at S0 and S3.
+**Why default-allow with a denylist, rather than an allowlist.** An autonomous build runs an open-ended set of commands — the test runner and build tool chosen at G2a, linters, migrations, container tooling, file inspection — plus compound commands (`VAR=x; ls …; node --version`) that no prefix rule matches. You cannot enumerate that set in advance, so an allowlist guarantees a stream of prompts. Claude Code evaluates **deny, then ask, then allow**, so a bare `"Bash"` allow with targeted denies gives you an uninterrupted run while still blocking the irreversibles.
 
-Extend for your stack — the test runner and build tool especially (`Bash(pytest *)`, `Bash(cargo *)`, `Bash(go *)`, `Bash(dotnet *)`, whatever yours is). A missing test-runner permission stalls the run at the first validation gate.
+The denies above mirror Gantry's own [irreversibles rule](process/no-interruption-contract.md) — the things the OS already refuses to do without a gate. Add your own: a production deploy command, a migration runner pointed at prod, anything that spends money.
 
-If a prompt does appear mid-run, choosing **"always allow"** writes a correctly-formed rule for you — often easier than hand-authoring the pattern.
+> **`Read(~/.claude/**)` is separate and easy to miss.** Reads *inside* your project never prompt, but Gantry's process docs live with the installed plugin under `~/.claude/plugins/`, and every command begins by reading one. Without this rule you get a dialog before every stage. It also covers `~/.claude/AGENT-INDEX.md` and your agents directory, read during routing.
 
-`claude --dangerously-skip-permissions` also works but removes every guardrail — prefer the allowlist.
+**Alternatives.** `"defaultMode": "auto"` auto-approves with background safety checks and needs no rules at all — simpler, slightly less deterministic. `bypassPermissions` skips prompts entirely; the Claude Code docs recommend it only in containers or VMs, and it is more than Gantry needs.
+
+If a prompt does appear mid-run, choosing **"always allow"** writes a correctly-formed rule for you.
 
 **2. A git host CLI**, authenticated, if you want S0 to create the remote for you. Optional — S0 works locally without it and logs it as a pre-flight item.
 
