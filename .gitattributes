@@ -1,0 +1,10 @@
+# Force LF on checkout for every platform.
+#
+# Claude Code parses YAML frontmatter in commands/, agents/ and skills/ and will
+# not accept a `---\r\n` delimiter. On Windows, git's default core.autocrlf=true
+# converts LF to CRLF at checkout, which silently breaks every command and agent
+# in this plugin: the files are present and look correct, the plugin reports as
+# enabled, and no commands register.
+#
+# This file is what prevents that. Do not remove it.
+* text=auto eol=lf
