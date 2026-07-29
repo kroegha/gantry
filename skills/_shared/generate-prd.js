@@ -125,7 +125,9 @@ function createHeaderCell(text, width) {
     shading: { fill: STYLE.colors.tableHeader, type: ShadingType.CLEAR },
     margins: STYLE.cellMargins,
     children: [new Paragraph({
-      children: [new TextRun({ text, bold: true, color: STYLE.colors.tableHeaderText, size: STYLE.sizes.table, font: STYLE.fonts.primary })]
+      // Inline markdown is parsed in cells too — **bold** in a table is common
+      // in PRDs and rendering it literally is the most visible failure there is.
+      children: parseInlineFormatting(text, { bold: true, color: STYLE.colors.tableHeaderText, size: STYLE.sizes.table })
     })]
   });
 }
@@ -137,7 +139,7 @@ function createDataCell(text, width, isAlt) {
     shading: { fill: isAlt ? STYLE.colors.tableRowAlt : STYLE.colors.tableRowNormal, type: ShadingType.CLEAR },
     margins: STYLE.cellMargins,
     children: [new Paragraph({
-      children: [new TextRun({ text, size: STYLE.sizes.table, font: STYLE.fonts.primary })]
+      children: parseInlineFormatting(text, { size: STYLE.sizes.table })
     })]
   });
 }
@@ -188,7 +190,8 @@ function createDocumentControl(config) {
   return [
     new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun({ text: "Document Control", bold: true })] }),
     new Table({ columnWidths: [col1, col2], rows }),
-    new Paragraph({ spacing: { before: 200 }, children: [] })
+    // Document Control owns its page — the table of contents starts on the next.
+    new Paragraph({ children: [new PageBreak()] })
   ];
 }
 
@@ -256,59 +259,76 @@ function parseMarkdown(content) {
       tableRows = [];
     }
 
-    // Headings
+    // Thematic breaks are separators in the source, not content. Drop them —
+    // previously they printed as a literal "---" line.
+    if (isHorizontalRule(line)) continue;
+
+    // Headings. The page break is suppressed when nothing has been emitted yet:
+    // the caller already breaks after the table of contents, and two breaks in
+    // a row produce a blank page.
     if (line.startsWith('# ')) {
-      elements.push(new Paragraph({ children: [new PageBreak()] }));
+      if (elements.length > 0) elements.push(new Paragraph({ children: [new PageBreak()] }));
       elements.push(new Paragraph({
         heading: HeadingLevel.HEADING_1,
-        children: [new TextRun({ text: line.slice(2), bold: true })]
+        children: parseInlineFormatting(line.slice(2), { bold: true })
       }));
     } else if (line.startsWith('## ')) {
-      if (line.match(/^## \d+\./)) {
+      if (line.match(/^## \d+\./) && elements.length > 0) {
         elements.push(new Paragraph({ children: [new PageBreak()] }));
       }
       elements.push(new Paragraph({
         heading: HeadingLevel.HEADING_1,
-        children: [new TextRun({ text: line.slice(3), bold: true })]
+        children: parseInlineFormatting(line.slice(3), { bold: true })
       }));
     } else if (line.startsWith('### ')) {
       elements.push(new Paragraph({
         heading: HeadingLevel.HEADING_2,
-        children: [new TextRun({ text: line.slice(4), bold: true })]
+        children: parseInlineFormatting(line.slice(4), { bold: true })
       }));
     } else if (line.startsWith('#### ')) {
       elements.push(new Paragraph({
         heading: HeadingLevel.HEADING_3,
-        children: [new TextRun({ text: line.slice(5), bold: true })]
+        children: parseInlineFormatting(line.slice(5), { bold: true })
       }));
     } else if (line.startsWith('##### ')) {
       elements.push(new Paragraph({
         heading: HeadingLevel.HEADING_4,
-        children: [new TextRun({ text: line.slice(6), bold: true })]
+        children: parseInlineFormatting(line.slice(6), { bold: true })
       }));
     }
-    // Bullet lists
-    else if (line.match(/^[-*] /)) {
+    // Blockquotes — indented and italic rather than a literal ">".
+    else if (line.match(/^>\s?/)) {
       elements.push(new Paragraph({
-        numbering: { reference: "bullet-list", level: 0 },
-        children: [new TextRun({ text: line.slice(2), font: STYLE.fonts.primary })]
+        indent: { left: 720 },
+        spacing: { after: STYLE.spacing.bodyAfter },
+        children: parseInlineFormatting(line.replace(/^>\s?/, ''), { italics: true, color: STYLE.colors.coverSubtitle })
       }));
-    } else if (line.match(/^  [-*] /)) {
+    }
+    // Bullet lists — nested first, or the two-space form is eaten by the
+    // top-level pattern.
+    else if (line.match(/^\s{2,}[-*] /)) {
       elements.push(new Paragraph({
         numbering: { reference: "bullet-list", level: 1 },
-        children: [new TextRun({ text: line.slice(4), font: STYLE.fonts.primary })]
+        children: parseInlineFormatting(line.replace(/^\s+[-*] /, ''))
+      }));
+    } else if (line.match(/^[-*] /)) {
+      elements.push(new Paragraph({
+        numbering: { reference: "bullet-list", level: 0 },
+        children: parseInlineFormatting(line.slice(2))
       }));
     }
     // Numbered lists
     else if (line.match(/^\d+\. /)) {
       elements.push(new Paragraph({
         numbering: { reference: "numbered-list", level: 0 },
-        children: [new TextRun({ text: line.replace(/^\d+\. /, ''), font: STYLE.fonts.primary })]
+        children: parseInlineFormatting(line.replace(/^\d+\. /, ''))
       }));
     }
-    // Regular paragraphs
+    // Regular paragraphs — justified, which is the convention for a formal
+    // specification and what stakeholders expect to see.
     else if (line.trim()) {
       elements.push(new Paragraph({
+        alignment: AlignmentType.JUSTIFIED,
         spacing: { after: STYLE.spacing.bodyAfter },
         children: parseInlineFormatting(line)
       }));
@@ -318,48 +338,67 @@ function parseMarkdown(content) {
   return elements;
 }
 
-// Parse inline formatting (bold, italic, code)
-function parseInlineFormatting(text) {
+// Parse inline markdown into TextRuns.
+//
+// `base` supplies defaults every run inherits — size and colour for table cells,
+// bold for headers, and so on — so the same parser serves body text, headings,
+// list items and table cells. Call this anywhere text reaches the document;
+// building a bare TextRun from a markdown line is how `**bold**` ends up printed
+// literally in front of a stakeholder.
+function parseInlineFormatting(text, base = {}) {
+  const mk = (t, extra = {}) =>
+    new TextRun({ font: STYLE.fonts.primary, ...base, ...extra, text: t });
+
+  // Order matters: the longest delimiter must be tried first, or `**bold**`
+  // is consumed as an italic run containing a stray asterisk.
+  const RULES = [
+    // Code first — its contents are literal and must not be parsed further.
+    { re: /`([^`]+)`/,
+      run: m => mk(m[1], { font: STYLE.fonts.code, size: base.size || STYLE.sizes.code, color: STYLE.colors.inlineCode }) },
+    { re: /\*\*\*(.+?)\*\*\*/, run: m => mk(m[1], { bold: true, italics: true }) },
+    { re: /___(.+?)___/,       run: m => mk(m[1], { bold: true, italics: true }) },
+    { re: /\*\*(.+?)\*\*/,     run: m => mk(m[1], { bold: true }) },
+    { re: /__(.+?)__/,         run: m => mk(m[1], { bold: true }) },
+    { re: /<u>(.+?)<\/u>/i,    run: m => mk(m[1], { underline: {} }) },
+    { re: /~~(.+?)~~/,         run: m => mk(m[1], { strike: true }) },
+    // Single-delimiter emphasis. Three guards, each earning its place:
+    //   (?<![\w*])      — not mid-word, so snake_case survives
+    //   (?!\s) / (?<!\s) — no space just inside the delimiters, which is what
+    //                      markdown requires and what stops "2 * 3 * 4" from
+    //                      italicising " 3 "
+    { re: /(?<![\w*])\*(?!\s)([^*\n]+?)(?<!\s)\*(?![\w*])/, run: m => mk(m[1], { italics: true }) },
+    { re: /(?<![\w_])_(?!\s)([^_\n]+?)(?<!\s)_(?![\w_])/,   run: m => mk(m[1], { italics: true }) },
+    // Links render as their label, styled as a link. The URL is dropped rather
+    // than shown, because a printed PRD full of raw URLs reads badly.
+    { re: /\[([^\]]+)\]\(([^)]+)\)/,
+      run: m => mk(m[1], { color: STYLE.colors.hyperlink, underline: {} }) }
+  ];
+
   const runs = [];
-  let remaining = text;
+  let rest = text;
 
-  while (remaining.length > 0) {
-    // Bold
-    const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
-    // Italic
-    const italicMatch = remaining.match(/\*(.+?)\*/);
-    // Code
-    const codeMatch = remaining.match(/`(.+?)`/);
-
-    const matches = [
-      boldMatch ? { type: 'bold', match: boldMatch, index: boldMatch.index } : null,
-      italicMatch ? { type: 'italic', match: italicMatch, index: italicMatch.index } : null,
-      codeMatch ? { type: 'code', match: codeMatch, index: codeMatch.index } : null
-    ].filter(m => m !== null).sort((a, b) => a.index - b.index);
-
-    if (matches.length === 0) {
-      runs.push(new TextRun({ text: remaining, font: STYLE.fonts.primary }));
-      break;
+  while (rest.length > 0) {
+    let best = null;
+    for (const rule of RULES) {
+      const m = rest.match(rule.re);
+      // Strict `<` keeps RULES order as the tie-break when two rules match at
+      // the same position — which is exactly the ** vs * case.
+      if (m && (best === null || m.index < best.m.index)) best = { rule, m };
     }
 
-    const first = matches[0];
-    if (first.index > 0) {
-      runs.push(new TextRun({ text: remaining.slice(0, first.index), font: STYLE.fonts.primary }));
-    }
-
-    if (first.type === 'bold') {
-      runs.push(new TextRun({ text: first.match[1], bold: true, font: STYLE.fonts.primary }));
-      remaining = remaining.slice(first.index + first.match[0].length);
-    } else if (first.type === 'italic') {
-      runs.push(new TextRun({ text: first.match[1], italics: true, font: STYLE.fonts.primary }));
-      remaining = remaining.slice(first.index + first.match[0].length);
-    } else if (first.type === 'code') {
-      runs.push(new TextRun({ text: first.match[1], font: STYLE.fonts.code, size: STYLE.sizes.code, color: STYLE.colors.inlineCode }));
-      remaining = remaining.slice(first.index + first.match[0].length);
-    }
+    if (!best) { runs.push(mk(rest)); break; }
+    if (best.m.index > 0) runs.push(mk(rest.slice(0, best.m.index)));
+    runs.push(best.rule.run(best.m));
+    rest = rest.slice(best.m.index + best.m[0].length);
   }
 
-  return runs;
+  return runs.length > 0 ? runs : [mk('')];
+}
+
+// A markdown thematic break (---, ***, ___, - - -). These are section
+// separators in the source and must never reach the page as literal text.
+function isHorizontalRule(line) {
+  return /^\s*([-*_])(\s*\1){2,}\s*$/.test(line);
 }
 
 // Main function
