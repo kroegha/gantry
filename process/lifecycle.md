@@ -8,6 +8,7 @@ Seven stages, six human gates. Everything else runs without stopping. Commands a
 
 | Stage | Command | Input | Output | Stop? |
 |---|---|---|---|---|
+| *(entry)* | `/gantry:start [path-to-existing-prd]` | Whatever state the folder is in | Dispatch into the right stage below; also the resume path | — |
 | S-PRD Intake | `/gantry:prd [path-to-existing-prd]` | An existing PRD **or** nothing but the product idea | PRD at the canonical path (`docs/{{PRODUCT_NAME}}_PRD_v1.0.md` + `.docx`); market-research doc when authored here | **G0: PRD accepted as the input document** |
 | S0 Bootstrap | `/gantry:init <prd> [extras]` | PRD (+ env guides, design system, other docs) in/for an empty folder | Project kernel (CLAUDE.md, PLANNING.md, TASK.md, DECISIONS.md, OPEN-QUESTIONS.md, LEARNINGS.md, PRPs/, docs/ skeletons), git repo + remote push, pre-flight checklist | → G1 (combined with S1) |
 | S1 PRD review | `/gantry:review-prd` | PRD + web research | Review doc + PRD vNext ("possible today"-verified, sources cited) | **G1: PRD sign-off** |
@@ -33,6 +34,8 @@ Gate ritual: `/gantry:gate <name>` — summarise evidence, list exactly what app
 ## Continuous execution — the run does not wait to be re-started
 
 **One command starts a project; the stages flow into one another on their own.** The user reviews, answers questions, and approves. They do not drive the machine by typing a command per stage.
+
+That command is **`/gantry:start`** — it reads the folder's state, enters the lifecycle at the right stage, and is equally the way to pick a project back up after a closed session. Every other command is a stage entry point that `start` (or the preceding stage) hands to.
 
 1. **A completed stage flows straight into the next.** Do not end a stage by telling the user to run the next command and then stopping. Announce the transition in one line and continue — read `${CLAUDE_PLUGIN_ROOT}/commands/<next>.md` and follow it.
 2. **A cleared gate resumes immediately.** Approval is the signal to continue, not a cue to wait for a command. The moment the owner approves (or approves with amendments you have applied and restated), record it and move into the next stage in the same breath.

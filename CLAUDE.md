@@ -21,7 +21,8 @@ Bring a PRD or just an idea; `/gantry:*` takes it to production — PRD intake �
 
 | Stage | Command | Gate that follows |
 |---|---|---|
-| S-PRD Intake — adopt an existing PRD, or author one | `/gantry:prd [existing-prd]` ← **the entry point; later stages self-start** | **G0** PRD accepted as input |
+| *(entry / resume)* — dispatch into the right stage from folder state | `/gantry:start [existing-prd]` ← **the only command users normally type** | — |
+| S-PRD Intake — adopt an existing PRD, or author one | `/gantry:prd [existing-prd]` | **G0** PRD accepted as input |
 | S0 Bootstrap — kernel + git + remote + pre-flight | `/gantry:init <prd> [extra docs]` | rolls into G1 |
 | S1 PRD review — "possible today" fact-check → PRD vNext | `/gantry:review-prd` | **G1** PRD sign-off |
 | S2 Stack — scored options + recommendation + draft ADR | `/gantry:stack` | **G2a** owner chooses stack |
@@ -41,7 +42,7 @@ commands/   thin stage entry points  ─reads→  process/   the authoritative m
                                      ─instantiates→ kernel/  templates → target project
 ```
 
-1. **`commands/*.md`** — the **eight** `/gantry:*` commands: `prd, init, review-prd, stack, plan, run, gate, harvest`. Deliberately short — they orchestrate and delegate detail to `process/`. Each has YAML frontmatter (`description`, optional `argument-hint`) and references other OS docs via `${CLAUDE_PLUGIN_ROOT}/...`, which only resolves when running as an installed plugin.
+1. **`commands/*.md`** — the **nine** `/gantry:*` commands: `start` (entry point and resume dispatcher — adds no behaviour, just routes), the seven stage commands `prd, init, review-prd, stack, plan, run, harvest`, and the cross-stage ritual `gate`. Deliberately short — they orchestrate and delegate detail to `process/`. Each has YAML frontmatter (`description`, optional `argument-hint`) and references other OS docs via `${CLAUDE_PLUGIN_ROOT}/...`, which only resolves when running as an installed plugin.
 2. **`process/*.md`** — the manual and real specification. `lifecycle.md` is the spine; the rest are loaded by name: `prd-intake.md`, `no-interruption-contract.md`, `quality-gates.md`, `agent-routing.md`, `stack-evaluation.md`, `phase-library.md`, `deliverables.md`, `memory.md`, and `environments/_template.md`.
 3. **`kernel/`** — templates instantiated into each *target* project at S0: six kernel docs, `BUILD-PLAN.template.md`, `PRPs/prp_base.md`, and `docs-templates/` (architecture, deployment, env-vars, maintenance, release-notes, security, uat). Not used by this repo itself.
 4. **`skills/`** — bundled `prd-create` and `prd-update` (each `SKILL.md` + `references/`), plus `_shared/generate-prd.js` and `_shared/style-constants.js`. Bundled rather than referenced so a fresh install has no external skill dependency.

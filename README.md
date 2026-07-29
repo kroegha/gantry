@@ -26,10 +26,12 @@ Verify: `/plugin list` shows `gantry`, and typing `/gantry` autocompletes the co
 Open a terminal in an **empty folder** for your new project, start Claude Code, and type:
 
 ```
-/gantry:prd
+/gantry:start
 ```
 
 That is the whole of your command-line involvement. Gantry runs continuously from there — each stage flows into the next on its own — and comes back to you only to **ask a question, show you something to review, or request an approval.** When you answer, it carries straight on. You never have to remember what command comes next, because there isn't one.
+
+Already have a PRD? Hand it over on the same line: `/gantry:start path/to/your-prd.docx`
 
 Your job for the rest of the project is to **review, give feedback, and answer questions.** That's it.
 
@@ -58,11 +60,21 @@ You start it once. Everything below happens in one continuous flow; the **bold**
 
 Six moments of your attention, plus an interview at the start. Everything between them is unattended.
 
+## Picking it back up
+
+Closed the laptop? Session ended? Context ran out? Open the project folder and type the same thing:
+
+```
+/gantry:start
+```
+
+It reads the project's files, works out exactly where it stopped — which stage, which phase, which task — says so in one line, and carries on. There is nothing to remember and no separate resume command.
+
 ## The other commands exist, but you won't normally type them
 
-`/gantry:init`, `:review-prd`, `:stack`, `:plan`, `:run`, `:gate`, `:harvest` are all individually invocable. They are there for **resuming after you close the session**, re-running a stage, or deliberately jumping to one — a recovery and override path, not the normal way to use Gantry.
+`/gantry:prd`, `:init`, `:review-prd`, `:stack`, `:plan`, `:run`, `:gate`, `:harvest` are all individually invocable. They are stage entry points, there for deliberately jumping to or re-running one stage — an override path, not the normal way to use Gantry. `/gantry:start` and the stages themselves hand off to them.
 
-`/gantry:gate` in particular is invoked by the stages themselves; type it only if you want a gate's evidence shown to you again.
+`/gantry:gate` in particular is invoked by the stages; type it only if you want a gate's evidence shown to you again.
 
 If you ever lose your place, just ask in plain language — "where are we?", "what's next?" — the agent reads the project state from files and tells you.
 
@@ -90,20 +102,20 @@ After you approve the plan at G2, the build starts on its own. This is where mos
 - **It will not stop to ask you questions.** When it hits ambiguity it applies a decision default from the plan and logs it to `DECISIONS.md`. When something is genuinely blocked, it stubs it behind a feature flag, logs it to `OPEN-QUESTIONS.md`, and moves on.
 - It stops only for what the plan declared: a live test-mode payment, anything sent in your name — and finally **G3** before production. Approve, and it resumes the phase it was in.
 
-**If the session ends** — you close the laptop, the context runs out — type `/gantry:run` to pick it back up. It reconciles `TASK.md` against git history, tells you where it is resuming, and carries on. That is the one time you'll type a command mid-project.
+**If the session ends** — you close the laptop, the context runs out — type `/gantry:start` to pick it back up. It reconciles `TASK.md` against git history, tells you which phase and task it is resuming, and carries on.
 
 **Read `DECISIONS.md` and `OPEN-QUESTIONS.md` while it runs.** That is where it records every judgement call it made instead of interrupting you. Gates summarise them, but the files are live.
 
 ## Stopping, resuming, and crashes
 
-Every command is re-runnable and resumable. State lives in files and git history, never in the conversation.
+Every command is re-runnable and resumable, and `/gantry:start` is the one to reach for. State lives in files and git history, never in the conversation.
 
-- **Close the laptop mid-run?** Re-run the same command later.
+- **Close the laptop mid-run?** `/gantry:start` later.
 - **Context cleared or compacted?** The agent re-reads `PLANNING.md`, `TASK.md`, and the current phase before touching anything.
-- **Crashed?** There is no recovery procedure — crashing is just stopping. Re-run the command.
-- **Fresh session tomorrow?** Open the project folder, run the next command. It picks up the state itself.
+- **Crashed?** There is no recovery procedure — crashing is just stopping. `/gantry:start`.
+- **Fresh session tomorrow?** Open the project folder, `/gantry:start`. It works out the stage itself.
 
-Re-running a *completed* stage is safe: `/gantry:init` diff-updates rather than overwriting, and `/gantry:prd` asks before touching an existing PRD.
+Re-entering a *completed* stage is safe by design: stages diff-update rather than overwrite, and nothing that has already been approved gets redone.
 
 ## Two ways to start
 
@@ -112,22 +124,20 @@ Re-running a *completed* stage is safe: `/gantry:init` diff-updates rather than 
 ```
 cd my-new-project
 claude
-/gantry:prd
+/gantry:start
 ```
 
-It interviews you (product, users, scope, market, budget), researches competitors, writes the PRD and a market-research document, renders the `.docx`, and stops at G0.
+It interviews you (product, users, scope, market, budget), researches competitors, writes the PRD and a market-research document, renders the `.docx`, and stops at G0. Then it keeps going.
 
-**You already have a PRD** — pass it, or drop it in the folder first:
+**You already have a PRD** — pass it on the command line, or drop it in the folder first:
 
 ```
 cd my-new-project          # with your existing PRD file in it
 claude
-/gantry:prd path/to/your-prd.docx
+/gantry:start path/to/your-prd.docx
 ```
 
 It converts, copies, and structure-checks it — **without editing the content**. Correcting the content is S1's job, and S1 needs your original to diff against.
-
-Either way you can also just run `/gantry:init` first: if it finds no PRD, it routes you into `/gantry:prd` automatically rather than erroring.
 
 ## What Gantry will never do without asking
 

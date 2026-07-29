@@ -5,7 +5,7 @@
     {
       "name": "gantry",
       "source": "./",
-      "description": "Gantry: agentic delivery OS — an idea or a PRD in, production out. Commands: /gantry:prd, init, review-prd, stack, plan, run, gate, harvest."
+      "description": "Gantry: agentic delivery OS — an idea or a PRD in, production out. Run /gantry:start and it carries the project through to production, stopping only for your answers and approvals."
     }
   ]
 }
