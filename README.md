@@ -268,7 +268,9 @@ Skipping it is fine — **without it everything still works and PRDs stop at mar
 
 ## Versioning
 
-Semver. Harvest proposals bump the version; `memory/` changes ship as part of the release. Current: **v0.1.0** — the lifecycle is proven in private use, but this public packaging has not yet been run end-to-end by anyone else. Treat it accordingly.
+Semver. Harvest proposals bump the version; `memory/` changes ship as part of the release. Current: **v0.1.1** — the lifecycle is proven in private use, but this public packaging is still being run end-to-end for the first time. Treat it accordingly.
+
+**Check what you're running with `/plugin`.** The installed copy is a cached snapshot taken at install time; `marketplace update` alone refreshes the clone but not necessarily what's loaded. If a fix isn't behaving, compare the version shown there against this line before assuming the fix is wrong.
 
 ## Licence
 
