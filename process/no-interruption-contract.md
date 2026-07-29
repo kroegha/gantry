@@ -4,6 +4,8 @@ The run stops only at declared gates. Everything else is handled by **pre-flight
 
 Scope note: this contract governs S0–S6. **S-PRD is deliberately outside it** — see `process/prd-intake.md`. Everything the PRD stage settles is ambiguity the run never has to stop for.
 
+It applies **between** stages as well as within them: a finished stage flows into the next one without waiting to be re-invoked, and a cleared gate resumes immediately (`lifecycle.md` §Continuous execution). Handing control back to the owner is something Gantry does at gates and nowhere else.
+
 ## 1. Pre-flight framework (BUILD-PLAN §2 generation)
 
 At S3, enumerate everything only the owner can provide, per category:

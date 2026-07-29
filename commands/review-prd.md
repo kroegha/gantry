@@ -17,7 +17,7 @@ Read first: project `PLANNING.md`; `${CLAUDE_PLUGIN_ROOT}/process/lifecycle.md`;
 4. **Capability upgrades**: what's newly possible that the PRD predates (cheaper models, new provider tools, platform features) — recommend, don't silently add.
 5. **Write the review**: `docs/reviews/PRD-review.md` — findings by severity (critical corrections / updates / recommendations / consistency fixes), each with sources. Sources section mandatory.
 6. **Produce PRD vNext** by handing the review to the bundled **`prd-update`** skill: the current PRD is its original, `docs/reviews/PRD-review.md` is its change document. Its 5-phase methodology does the document surgery — cataloguing changes, detecting conflicts, versioning, regenerating markdown + `.docx`. For anything needing the owner's judgement, present options in the review doc instead of deciding.
-7. **Gate G1**: run `/gantry:gate G1` — present the review summary + PRD diff; the owner signs off the PRD as spec of record (possibly after answering option questions).
+7. **Gate G1**: run `/gantry:gate G1` — present the review summary + PRD diff; the owner signs off the PRD as spec of record (possibly after answering option questions). **On approval, continue straight into S2** (`${CLAUDE_PLUGIN_ROOT}/commands/stack.md`) — do not wait for the owner to type `/gantry:stack`.
 
 ## Rules
 

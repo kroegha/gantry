@@ -14,7 +14,7 @@ Guarantee a PRD exists at the canonical path before the project starts. Protocol
 3. **Route A — a PRD was supplied:** read it in full, convert to markdown if needed, copy (never move) to `docs/{{PRODUCT_NAME}}_PRD_v{{VERSION}}.md`, record the source path (in `DECISIONS.md` if the kernel exists, otherwise in the G0 report for S0 to carry over), run the structural coverage check, render the `.docx` if absent. **Do not fact-check or improve the content — that is S1.**
 4. **Route B — no PRD:** invoke the bundled **`prd-create`** skill and follow its workflow (interview → market research → generation → review loop). Capture in the first pass: product name, `{{ORGANISATION}}` (blank is valid and default), and the target market/jurisdiction. Write outputs to the canonical paths.
 5. **Gate G0**: run `/gantry:gate G0` — present the PRD, how it got there, structural coverage, gaps, and market research if any. State plainly that approval means *this is the input document*, not that its contents are verified — verification is G1.
-6. **Report**: PRD path and version, what is missing, and the next step: `/gantry:init <prd-path>`.
+6. **Report and continue**: state the PRD path and version and what is missing — then move straight into S0 by reading and following `${CLAUDE_PLUGIN_ROOT}/commands/init.md` with that PRD path. Do not stop and wait for the owner to type `/gantry:init`.
 
 ## Rules
 

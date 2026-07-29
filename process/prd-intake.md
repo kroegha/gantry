@@ -71,6 +71,8 @@ Present at the gate, then wait:
 | Known gaps | Everything deferred to S1 or logged to OPEN-QUESTIONS |
 | What approval means | "This document is the input the project will be built from." It is **not** a correctness sign-off — that is G1, after the fact-check. |
 
+On approval, continue straight into S0 (`${CLAUDE_PLUGIN_ROOT}/commands/init.md`). The owner does not type another command to move on.
+
 ## Re-runs
 
 `/gantry:prd` is re-runnable like every other Gantry command. On re-run it detects an existing canonical PRD and asks whether to adopt a replacement, revise the current one (`prd-update`), or leave it alone. It never overwrites a PRD without saying so first.

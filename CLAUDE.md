@@ -21,7 +21,7 @@ Bring a PRD or just an idea; `/gantry:*` takes it to production — PRD intake �
 
 | Stage | Command | Gate that follows |
 |---|---|---|
-| S-PRD Intake — adopt an existing PRD, or author one | `/gantry:prd [existing-prd]` | **G0** PRD accepted as input |
+| S-PRD Intake — adopt an existing PRD, or author one | `/gantry:prd [existing-prd]` ← **the entry point; later stages self-start** | **G0** PRD accepted as input |
 | S0 Bootstrap — kernel + git + remote + pre-flight | `/gantry:init <prd> [extra docs]` | rolls into G1 |
 | S1 PRD review — "possible today" fact-check → PRD vNext | `/gantry:review-prd` | **G1** PRD sign-off |
 | S2 Stack — scored options + recommendation + draft ADR | `/gantry:stack` | **G2a** owner chooses stack |
@@ -74,6 +74,7 @@ Commits use Conventional Commits.
 - **Neutrality is a feature, not an accident.** No company name, no personal name, no specific market's payment rails/tax/privacy law, and no private infrastructure detail belongs anywhere in this repo. Deliverable identity comes from the project's `{{ORGANISATION}}` value — blank by default, and **blank must render as absent, never as a placeholder**.
 - **"The owner"** is the term for the human who approves gates. Defined once in `lifecycle.md`. Don't introduce a second term for the same role.
 - **S-PRD is the only stage allowed to interview the user**, and `/gantry:run` must never be able to reach it. That boundary is what lets the no-interruption contract hold everywhere else — if you weaken it, the central promise goes with it.
+- **Stages flow into one another; gates resume immediately.** A command must never end by telling the user to run the next one and then stopping, and an approval must never be followed by waiting. The user reviews, answers, and approves — they do not drive the machine command by command (`process/lifecycle.md` §Continuous execution). Every command file ends with an explicit "continue into X" instruction; if you add a stage, add that handoff too.
 - **Templates carry `<!-- gen: -->` notes and `{{SLOT}}` placeholders.** The `gen:` comments tell the generating agent *when* a section is created/updated and what to source it from; `deliverables.md` relies on them to wire doc updates into build phases. A slot without a `gen:` note is a slot the agent will guess at.
 - **Nothing outside this repo and the target project may be written.** Gantry reads `~/.claude/agents/` and `~/.claude/AGENT-INDEX.md` to route work; it never writes there, and never fails a phase because an agent is missing.
 - **Commands stay re-runnable and resumable.** State lives in the target project's kernel files + git history, never in conversation. Any new step must tolerate re-execution after a crash, a gate, or a context clear.

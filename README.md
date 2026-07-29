@@ -21,7 +21,7 @@ Verify: `/plugin list` shows `gantry`, and typing `/gantry` autocompletes the co
 
 # Using Gantry
 
-## The 30-second version
+## You type one command
 
 Open a terminal in an **empty folder** for your new project, start Claude Code, and type:
 
@@ -29,36 +29,42 @@ Open a terminal in an **empty folder** for your new project, start Claude Code, 
 /gantry:prd
 ```
 
-Answer its questions. From there, every command tells you the next one. You will type seven commands over the life of the project, approve at six gates, and the agent does everything in between.
+That is the whole of your command-line involvement. Gantry runs continuously from there — each stage flows into the next on its own — and comes back to you only to **ask a question, show you something to review, or request an approval.** When you answer, it carries straight on. You never have to remember what command comes next, because there isn't one.
+
+Your job for the rest of the project is to **review, give feedback, and answer questions.** That's it.
 
 ## Where to run it
 
-**In the project folder, not in Gantry's folder.** Gantry is installed once, globally; you run its commands from inside whatever project you are building. The folder should be either:
+**In the project folder, not in Gantry's folder.** Gantry is installed once, globally; you run it from inside whatever project you are building. The folder should be either:
 
 - **empty** — the normal case, or
 - **containing only your input documents** (an existing PRD, environment guides, a design template)
 
-Do not run `/gantry:init` in a folder that already has an unrelated codebase in it. Gantry generates a project kernel at the root and expects to own it.
+Don't start Gantry in a folder that already holds an unrelated codebase. It generates a project kernel at the root and expects to own it.
 
-## What you actually type, and what happens
+## What the whole run looks like from your side
 
-| # | You type | What the agent does | It stops at | You do |
-|---|---|---|---|---|
-| 1 | `/gantry:prd` | Asks whether you have a PRD. **Yes** → adopts it (converts, copies to `docs/`, checks structure). **No** → runs a full requirements interview, does market research, writes the PRD + `.docx` | **G0** | Approve the PRD as the input document |
-| 2 | `/gantry:init docs/YourProduct_PRD_v1.0.md` | Builds the project kernel (CLAUDE.md, PLANNING.md, TASK.md, DECISIONS.md, OPEN-QUESTIONS.md, LEARNINGS.md, `docs/`), asks up to 6 gap questions, `git init`, offers to create the remote, writes the pre-flight checklist | asks its 6 questions, then continues | Answer the gap questions |
-| 3 | `/gantry:review-prd` | Fact-checks every external claim in the PRD against the live web — vendors, APIs, model names, prices, regulations — with sources. Writes a review doc, then applies it to produce PRD vNext | **G1** | Approve the corrected PRD as spec of record |
-| 4 | `/gantry:stack` | Researches 2–3 candidate stacks, scores them against weighted criteria, drafts ADR-001 | **G2a** | **Pick a stack** from the options offered |
-| 5 | `/gantry:plan` | Writes BUILD-PLAN.md: phases, test specs, gates, agent routing, decision defaults, UAT scenarios | **G2** | Approve the plan — **this authorises the autonomous run** |
-| 6 | `/gantry:run` | Builds the product phase by phase: PRP → failing tests → implement → gate → review → commit → push. Hours of work | only at **declared in-run gates** (live money, production, comms) and **G3** | Approve those specific things |
-| 7 | `/gantry:harvest` | Retro: mines what was learned, proposes updates to Gantry's own memory and templates | proposal | Approve the diffs |
+You start it once. Everything below happens in one continuous flow; the **bold** rows are the only moments it hands control back to you.
 
-There is an eighth command, `/gantry:gate`, but **you normally never type it** — the stage commands invoke it themselves when they reach a stop. Type it yourself only if you want a gate's evidence re-presented.
+| Stage | What it does, unattended | What it needs from you |
+|---|---|---|
+| **S-PRD** | Asks whether you have a PRD. **Yes** → adopts it (converts, copies into `docs/`, structure-checks it). **No** → interviews you, researches the market, writes the PRD + `.docx` | **Answer the interview.** Then approve at **G0**: this is the document we'll build from |
+| S0 | Builds the project kernel (CLAUDE.md, PLANNING.md, TASK.md, DECISIONS.md, OPEN-QUESTIONS.md, LEARNINGS.md, `docs/`), `git init`, offers to create the remote, writes the pre-flight checklist | **Answer up to 6 gap questions** — budget, domains, deadlines, accounts you already hold |
+| S1 | Fact-checks every external claim in the PRD against the live web — vendors, APIs, model names, prices, regulations — with sources. Writes a review, applies it, produces PRD vNext | **Approve at G1**: the corrected PRD is now the spec of record |
+| S2 | Researches 2–3 candidate stacks, scores them against weighted criteria, drafts ADR-001 | **Choose at G2a** — it recommends, you pick |
+| S3 | Writes BUILD-PLAN.md: phases, test specs, gates, agent routing, decision defaults, UAT scenarios | **Approve at G2** — this authorises the autonomous build, and it starts immediately |
+| S4–S5 | Builds the product phase by phase: PRP → failing tests → implement → validate → review → commit → push. Then deliverable docs, UAT rounds, requirements audit, readiness verdict. **Hours of work, unattended** | **Approve the declared in-run stops only** — a live test-mode payment, anything in your name. Then **G3** for production |
+| S6 | Retro: mines what was learned, proposes updates to Gantry's own memory and templates | **Approve the diffs** |
 
-## Yes, you run each command yourself
+Six moments of your attention, plus an interview at the start. Everything between them is unattended.
 
-There is no single "do everything" command, and that is deliberate. The six gates are decisions only you can make — whether the spec is right, which stack to use, whether the plan is worth authorising, whether real money may move, whether it ships. A command per stage is what makes those decisions unavoidable rather than assumed.
+## The other commands exist, but you won't normally type them
 
-The commands are not a burden to remember: **every one ends by telling you what to run next.** You can also just ask, in plain language, "what's next?" — the agent reads the project state from files and tells you.
+`/gantry:init`, `:review-prd`, `:stack`, `:plan`, `:run`, `:gate`, `:harvest` are all individually invocable. They are there for **resuming after you close the session**, re-running a stage, or deliberately jumping to one — a recovery and override path, not the normal way to use Gantry.
+
+`/gantry:gate` in particular is invoked by the stages themselves; type it only if you want a gate's evidence shown to you again.
+
+If you ever lose your place, just ask in plain language — "where are we?", "what's next?" — the agent reads the project state from files and tells you.
 
 ## What a gate looks like
 
@@ -74,15 +80,17 @@ Then it waits.
 
 **Silence is never approval.** The agent will not proceed because you went quiet, and it will not interpret "looks good" on an unrelated point as a gate approval.
 
-## The big one: `/gantry:run`
+**Your approval is the resume signal.** The moment you approve, it records the decision and moves into the next stage in the same breath. You do not type anything to restart it.
 
-This is where most of the work happens, and it is meant to run for a long time without you.
+## The long stretch: the build itself
 
-- It works through BUILD-PLAN phases in order, writing failing tests before implementation, running the validation gate after each, and committing per task.
+After you approve the plan at G2, the build starts on its own. This is where most of the work happens, and it is meant to run for a long time without you.
+
+- It works through BUILD-PLAN phases in order, writing failing tests before implementation, running the validation gate after each, and committing per task. **Phase boundaries are not stops** — it finishes one and starts the next.
 - **It will not stop to ask you questions.** When it hits ambiguity it applies a decision default from the plan and logs it to `DECISIONS.md`. When something is genuinely blocked, it stubs it behind a feature flag, logs it to `OPEN-QUESTIONS.md`, and moves on.
-- It stops only for what the plan declared: a live test-mode payment, a production deploy, anything sent in your name — and finally **G3** before production.
+- It stops only for what the plan declared: a live test-mode payment, anything sent in your name — and finally **G3** before production. Approve, and it resumes the phase it was in.
 
-**After a gate stops the run**, approve and it continues in the same session. If the session has ended, just type `/gantry:run` again — it reconciles `TASK.md` against git history, tells you where it is resuming, and carries on.
+**If the session ends** — you close the laptop, the context runs out — type `/gantry:run` to pick it back up. It reconciles `TASK.md` against git history, tells you where it is resuming, and carries on. That is the one time you'll type a command mid-project.
 
 **Read `DECISIONS.md` and `OPEN-QUESTIONS.md` while it runs.** That is where it records every judgement call it made instead of interrupting you. Gates summarise them, but the files are live.
 
@@ -168,15 +176,19 @@ Extend for your stack. `claude --dangerously-skip-permissions` also works but re
 
 ### Word document output (optional)
 
-PRDs render to `.docx` for stakeholders. This is the only part of Gantry that needs a dependency:
+PRDs render to `.docx` for stakeholders. This is the only part of Gantry that needs a dependency — run `npm install` once, in the installed plugin directory:
 
 ```bash
-npm install        # run inside the installed Gantry plugin directory
+# macOS / Linux
+cd ~/.claude/plugins/marketplaces/gantry-marketplace && npm install
 ```
 
-The plugin's location depends on how you installed it (marketplace installs live under `~/.claude/plugins/`; `/plugin` shows the path). If you would rather not hunt for it, clone this repo and run `npm install` there, or skip it entirely — **without it everything still works and PRDs stop at markdown, which is the version of record regardless.**
+```powershell
+# Windows
+cd $env:USERPROFILE\.claude\plugins\marketplaces\gantry-marketplace ; npm install
+```
 
-Styling is controlled by `skills/_shared/style-constants.js` — edit that one file to match a house style.
+Skipping it is fine — **without it everything still works and PRDs stop at markdown, which is the version of record regardless.** Styling is controlled by `skills/_shared/style-constants.js`; edit that one file to match a house style.
 
 ---
 

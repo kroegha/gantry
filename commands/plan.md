@@ -15,4 +15,4 @@ Generate the project's `BUILD-PLAN.md` from `${CLAUDE_PLUGIN_ROOT}/kernel/BUILD-
 5. **Human gates (§7)**: money, PROD, comms + anything the owner added at S0 + UAT/G3 flow.
 6. **Deliverables wiring**: doc creation/update tasks embedded into phases per `deliverables.md` (UAT scenarios get drafted in this stage from PRD user stories → `docs/uat.md`).
 7. **Out of scope (§8)**: from the PRD's deferred versions — explicit, so drift is detectable.
-8. **Gate G2**: `/gantry:gate G2` — present the plan, pre-flight status, declared stops. The owner's sign-off = authorisation for the autonomous run (`/gantry:run`).
+8. **Gate G2**: `/gantry:gate G2` — present the plan, pre-flight status, declared stops. The owner's sign-off = authorisation for the autonomous run. **On approval, begin the run immediately** by reading and following `${CLAUDE_PLUGIN_ROOT}/commands/run.md` — the approval *is* the start signal, so do not wait for the owner to type `/gantry:run`.

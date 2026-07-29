@@ -12,3 +12,4 @@ Gate: $ARGUMENTS. Definitions in `${CLAUDE_PLUGIN_ROOT}/process/lifecycle.md`.
 3. **State precisely what approval authorises** (one sentence) and what happens next.
 4. **Wait.** Never proceed on silence or partial answers. If the owner amends, apply amendments, restate, re-ask.
 5. On approval: record it in DECISIONS.md (date, gate, scope of approval, amendments) and, where applicable, tag the repo (`gate/G2`, `v1.0` at G3).
+6. **Then continue immediately into the next stage** — read `${CLAUDE_PLUGIN_ROOT}/commands/<next>.md` and follow it, announcing the transition in one line. Approval is the signal to proceed, never a cue to wait for the owner to type the next command (`${CLAUDE_PLUGIN_ROOT}/process/lifecycle.md` §Continuous execution). The stage that follows each gate: G0 → S0 `init` · G1 → S2 `stack` · G2a → S3 `plan` · G2 → S4 `run` · in-run → resume the current phase · G3 → finish the release, then S6 `harvest`.

@@ -22,8 +22,9 @@ Read at session start: `CLAUDE.md`, `PLANNING.md`, `TASK.md`, current phase of `
 
 - **Never stop to ask.** Ambiguity → BUILD-PLAN §3 decision defaults → log → continue. Blocked >3 attempts → default → else OPEN-QUESTIONS + feature-flag stub → continue.
 - **Never reopen the PRD.** A PRD that turns out to be wrong or thin is handled by decision defaults and OPEN-QUESTIONS like any other ambiguity. `/gantry:prd` is not reachable from here.
-- **Stop only at** BUILD-PLAN §7 gates (live money, PROD, comms, project-specific ones) — run `/gantry:gate <name>` with evidence.
-- Reaching P-RELEASE: deliverable docs finalised → UAT loop (read-only Test Agent; its report → your fix loop → re-verify) → requirements audit → readiness verdict → `/gantry:gate G3`.
+- **Stop only at** BUILD-PLAN §7 gates (live money, PROD, comms, project-specific ones) — run `/gantry:gate <name>` with evidence. **The moment the gate clears, resume the phase you were in** — an approval is never a cue to wait for the owner to restart the run.
+- **Phase boundaries are not stops.** Finish a phase, log it, commit, and start the next one in the same breath.
+- Reaching P-RELEASE: deliverable docs finalised → UAT loop (read-only Test Agent; its report → your fix loop → re-verify) → requirements audit → readiness verdict → `/gantry:gate G3`. On G3 approval: deploy per the deployment doc, verify post-deploy, write release notes, tag — then continue into S6 (`${CLAUDE_PLUGIN_ROOT}/commands/harvest.md`).
 
 ## Resume semantics
 

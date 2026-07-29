@@ -26,7 +26,7 @@ Read first: `${CLAUDE_PLUGIN_ROOT}/process/lifecycle.md`.
    - Write `.gitignore` FIRST (env files, node_modules/build dirs, OS cruft; verify no secrets staged).
    - `git init` → initial commit (`chore: bootstrap <project> with Gantry v<version>`).
    - If a git host CLI is authenticated, offer to create the remote and push (private by default). If not, log it to OPEN-QUESTIONS, continue locally, push later. Never create a public repo without asking.
-8. **Report**: kernel files created, repo URL, pre-flight items needing the owner, and next step: `/gantry:review-prd` → Gate G1.
+8. **Report and continue**: state the kernel files created, the repo URL, and the pre-flight items needing the owner — then move straight into S1 by reading and following `${CLAUDE_PLUGIN_ROOT}/commands/review-prd.md`. Do not stop and wait for the owner to type `/gantry:review-prd`.
 
 ## Rules
 

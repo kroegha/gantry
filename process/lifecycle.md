@@ -30,9 +30,20 @@ Seven stages, six human gates. Everything else runs without stopping. Commands a
 
 Gate ritual: `/gantry:gate <name>` — summarise evidence, list exactly what approval means, wait. Never proceed on silence.
 
+## Continuous execution — the run does not wait to be re-started
+
+**One command starts a project; the stages flow into one another on their own.** The user reviews, answers questions, and approves. They do not drive the machine by typing a command per stage.
+
+1. **A completed stage flows straight into the next.** Do not end a stage by telling the user to run the next command and then stopping. Announce the transition in one line and continue — read `${CLAUDE_PLUGIN_ROOT}/commands/<next>.md` and follow it.
+2. **A cleared gate resumes immediately.** Approval is the signal to continue, not a cue to wait for a command. The moment the owner approves (or approves with amendments you have applied and restated), record it and move into the next stage in the same breath.
+3. **The only pauses are:** the S-PRD interview, the S0 gap questions, the six gates, and an owner who interrupts. Nothing else — not stage boundaries, not phase boundaries, not a long-running build.
+4. **The commands remain individually invocable** for resuming after a closed session, re-running a stage, or deliberately jumping to one. That is a recovery and override path, not the normal way to use Gantry.
+
+Stated negatively, because it is the failure this rule exists to prevent: *finishing a stage, printing "next step: `/gantry:stack`", and stopping* is a bug. So is *receiving "approved" at a gate and waiting.*
+
 ## Rules that bind every stage
 
-1. **Never stop mid-stage to ask a human.** Apply the project's Decision Defaults (BUILD-PLAN §3, generated from `process/no-interruption-contract.md`); log to DECISIONS.md / OPEN-QUESTIONS.md; continue. **S-PRD is the one stage exempt** — it is an interview by design, it sits ahead of the autonomous run, and it is unreachable from `/gantry:run`.
+1. **Never stop mid-stage to ask a human, and never stop between stages at all.** Apply the project's Decision Defaults (BUILD-PLAN §3, generated from `process/no-interruption-contract.md`); log to DECISIONS.md / OPEN-QUESTIONS.md; continue. **S-PRD is the one stage exempt** — it is an interview by design, it sits ahead of the autonomous run, and it is unreachable from `/gantry:run`.
 2. **Read before acting:** PLANNING.md + TASK.md at every session start; relevant memory entries (via `memory/MEMORY.md` index) at S2/S3 and phase starts.
 3. **Write LEARNINGS.md** whenever reality surprised you (quirk, wrong estimate, gate failure, pattern that worked). One line is enough; harvest does the distilling.
 3a. **Context loss is always imminent.** Checkpoint continuously (TASK.md in-progress markers incl. PRP step, per-task commits, decisions written when made). After any compact/clear — or whenever current phase/PRP-step/last-commit can't be stated without guessing — re-read PLANNING.md, TASK.md, and the current phase + PRP before continuing. The kernel CLAUDE.md carries this rule because it's the file guaranteed to reload after a clear.
