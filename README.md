@@ -167,8 +167,10 @@ Gantry addresses each directly — a research-first PRD review, a scored stack e
 {
   "permissions": {
     "allow": [
+      "Read(~/.claude/**)",
       "Edit", "Write",
-      "Bash(git *)", "Bash(gh *)", "Bash(npm *)", "Bash(npx *)",
+      "Bash(git *)", "Bash(gh *)", "Bash(node *)",
+      "Bash(npm *)", "Bash(npx *)",
       "Bash(docker *)", "Bash(docker compose *)",
       "WebFetch", "WebSearch"
     ]
@@ -176,7 +178,13 @@ Gantry addresses each directly — a research-first PRD review, a scored stack e
 }
 ```
 
-Extend for your stack. `claude --dangerously-skip-permissions` also works but removes every guardrail — prefer the allowlist.
+> **`Read(~/.claude/**)` is not optional, and it is the one people leave out.** Reads *inside* your project don't prompt, but Gantry's own process docs live with the installed plugin under `~/.claude/plugins/`, and every command begins by reading one. Without this rule you get a permission dialog before every single stage — which defeats the entire point of the tool. The same rule covers `~/.claude/AGENT-INDEX.md` and your agents directory, which routing reads at S0 and S3.
+
+Extend for your stack — the test runner and build tool especially (`Bash(pytest *)`, `Bash(cargo *)`, `Bash(go *)`, `Bash(dotnet *)`, whatever yours is). A missing test-runner permission stalls the run at the first validation gate.
+
+If a prompt does appear mid-run, choosing **"always allow"** writes a correctly-formed rule for you — often easier than hand-authoring the pattern.
+
+`claude --dangerously-skip-permissions` also works but removes every guardrail — prefer the allowlist.
 
 **2. A git host CLI**, authenticated, if you want S0 to create the remote for you. Optional — S0 works locally without it and logs it as a pre-flight item.
 
