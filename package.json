@@ -1,0 +1,13 @@
+{
+  "name": "gantry-doc-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Document generation for Gantry's bundled prd-create/prd-update skills. This is the only executable code in the repository — everything else is prompt material.",
+  "license": "MIT",
+  "scripts": {
+    "prd:docx": "node skills/_shared/generate-prd.js"
+  },
+  "dependencies": {
+    "docx": "^9.5.1"
+  }
+}

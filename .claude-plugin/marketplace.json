@@ -1,0 +1,11 @@
+{
+  "name": "gantry-marketplace",
+  "owner": { "name": "kroegha" },
+  "plugins": [
+    {
+      "name": "gantry",
+      "source": "./",
+      "description": "Gantry: agentic delivery OS — an idea or a PRD in, production out. Commands: /gantry:prd, init, review-prd, stack, plan, run, gate, harvest."
+    }
+  ]
+}
